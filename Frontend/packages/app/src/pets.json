@@ -1,0 +1,66 @@
+[
+  {
+    "id": 0,
+    "name": "Klee #1",
+    "image": "Klee_1.jpeg",
+    "description": "Bom Bom Bakudan",
+    "rarity": 1
+    
+  },
+  {
+    "id": 1,
+    "name": "Klee #2",
+    "image": "Klee_2.jpeg",
+    "description": "Yahoo",
+    "rarity": 1
+    
+  },
+  {
+    "id": 2,
+    "name": "Klee #3",
+    "image": "Klee_3.jpeg",
+    "description":"Drawing Stuff",
+    "rarity": 2
+    
+  },
+  {
+    "id": 3,
+    "name": "Klee #4",
+    "image": "Klee_4.jpeg",
+    "description": "Hello there~",
+    "rarity": 2
+    
+  },
+  {
+    "id": 4,
+    "name": "Klee #5",
+    "image": "Klee_5.jpeg",
+    "description": "Good morning traveller!",
+    "rarity": 3
+    
+  },
+  {
+    "id": 5,
+    "name": "Klee #6",
+    "image": "Klee_6.jpeg",
+    "description": "Have you seen Hell on Earth?",
+    "rarity": 3
+    
+  },
+  {
+    "id": 6,
+    "name": "Klee #7",
+    "image": "Klee_7.jpeg",
+    "description": "Explosion!",
+    "rarity": 4
+    
+  },
+  {
+    "id": 7,
+    "name": "Klee #8",
+    "image": "Klee_8.jpeg",
+    "description": "Ahi",
+    "rarity": 4
+    
+  }
+]
