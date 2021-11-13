@@ -47,6 +47,7 @@ export const AdminPage = () => {
 
     const getPoolInfo = async () => {
         await k_mine_contract.methods.getPoolInfo('0').call().then(Result => {
+            console.log('Pool 1 info:', Result);
             setTokenA_P1(Result[0]);
             setTokenB_P1(Result[1]);
         });
@@ -59,9 +60,11 @@ export const AdminPage = () => {
     getPoolInfo().then();
 
     const initialStake = async () => {
-        k_mine_contract.methods.stake('0', web3.utils.toWei('50'), web3.utils.toWei('0')).send({from:account}).once('receipt', (receipt) => {
-           console.log('INITIAL STAKE')
-        });
+        k_mine_contract.methods.stake('0', web3.utils.toWei('50'), web3.utils.toWei('0'))
+            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('50')})
+            .once('receipt', (receipt) => {
+               console.log('INITIAL STAKE')
+            });
     }
 
     const init = async () => {

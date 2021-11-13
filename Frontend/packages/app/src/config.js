@@ -1,204 +1,205 @@
-export const K_REWARD_CONTRACT_ADDRESS = '0xac30C256eD24815E6a80f4d2f1ab2B5773D9367d'
-export const KV2_CONTRACT_ADDRESS = '0x83A5Cc05b1B3689B3Ef0a00a4EB3988bAcA3aEd2'
-export const YM1_CONTRACT_ADDRESS = '0x51e97448Edabe2BCf36067Af18FDe0675D027b19'
-export const YM2_CONTRACT_ADDRESS = '0x1aa063DC0337289073a6eF146eE51cf0144068B7'
-export const KV6_CONTRACT_ADDRESS = '0x88D249CdABB3b7D4AFF3929f180E64436d6fC643'
-export const K_MINE_CONTRACT_ADDRESS = '0x8d9C0a76791c3fEE85C935d95Af44747D88e3369'
+export const K_REWARD_CONTRACT_ADDRESS = '0xF98c158c2D9C9707Bd173f6A26925Dcf3B24D9cE'
+export const KV2_CONTRACT_ADDRESS = '0xdEaDc226cBF1054709B9958B38d1D7Fbf84a949C'
+export const YM1_CONTRACT_ADDRESS = '0xdF0310E933A4A3103D6170C65AA86c006778387F'
+export const YM2_CONTRACT_ADDRESS = '0x72632f15aF551300e41824Dea85C906673EcC5dF'
+export const KV6_CONTRACT_ADDRESS = '0xb673419C892e1CCeC95E41388A3D332f40c6ef4e'
+export const K_MINE_CONTRACT_ADDRESS = '0x0855db07Fa7c000Def0beeB53e9b2F9b07112b1a'
 
 export const K_MINE_ABI = [
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newRL",
-                "type": "address"
-            }
-        ],
-        "name": "setRewardLockerAddress",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "tokenA",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "tokenB",
-                "type": "address"
-            }
-        ],
-        "name": "addPool",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "poolID",
-                "type": "uint256"
-            }
-        ],
-        "name": "getPoolInfo",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_tokenAddr",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "_deposit",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function",
-        "payable": true
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "poolID",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountA",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountB",
-                "type": "uint256"
-            }
-        ],
-        "name": "stake",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "poolID",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "tokenGiven",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "tokenGivenAmount",
-                "type": "address"
-            }
-        ],
-        "name": "swap",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "poolID",
-                "type": "uint256"
-            }
-        ],
-        "name": "harvestOnePool",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-]
+        {
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "previousOwner",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "OwnershipTransferred",
+            "type": "event"
+        },
+        {
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function",
+            "constant": true
+        },
+        {
+            "inputs": [],
+            "name": "renounceOwnership",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "transferOwnership",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "newRL",
+                    "type": "address"
+                }
+            ],
+            "name": "setRewardLockerAddress",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "tokenA",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "tokenB",
+                    "type": "address"
+                }
+            ],
+            "name": "addPool",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "poolID",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getPoolInfo",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function",
+            "constant": true
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_tokenAddr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "_deposit",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function",
+            "payable": true
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "poolID",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amountA",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amountB",
+                    "type": "uint256"
+                }
+            ],
+            "name": "stake",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function",
+            "payable": true
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "poolID",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "tokenGiven",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "tokenGivenAmount",
+                    "type": "address"
+                }
+            ],
+            "name": "swap",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "poolID",
+                    "type": "uint256"
+                }
+            ],
+            "name": "harvestOnePool",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ]
 export const K_REWARD_ABI = [
     {
         "inputs": [],

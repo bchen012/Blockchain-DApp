@@ -6,15 +6,17 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {SafeCast} from '@openzeppelin/contracts/utils/math/SafeCast.sol';
 
-contract KleeCoinV2 is ERC20("KleeCoinV2","KV2"), Ownable {
+
+//@dev : contract for the native reward token for the LP
+contract KleeCoinV2 is ERC20, Ownable {
     using SafeMath for uint256;
     using SafeCast for uint256;
 
     uint256 internal exchangeRate = 10 ;  //10 YMC to 1 ETH
 
-    constructor() public {
+    constructor() ERC20("KleeCoinV2","KV2") {
         _mint(msg.sender, 1000* (10 ** uint256(decimals())));
-        _mint(address(this),1000 * (10 ** uint256(decimals())));   
+        _mint(address(this),1000 * (10 ** uint256(decimals())));
     }
 
     function buyCoin() public payable {

@@ -11,38 +11,42 @@ import {SafeCast} from '@openzeppelin/contracts/utils/math/SafeCast.sol';
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+
+
+//@dev: this token is the reward NFT for providing liquidity to the pools
+//    : only claimable via the pool stake token
 contract KleeTokenV6 is ERC721URIStorage, Ownable {
     using SafeMath for uint256;
     using SafeCast for uint256;
 
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
 
-    IERC20 private _KV2;
-    address _KV2Address = address(0x97Fd477e1893a2eEDcC7DEFE19fcDA7bF3EB6F1f);
+    uint256 tokenCounter;
+    mapping (uint256 => address) tokenToOwner;
+
+    IERC20 private _RewardToken;
+    address _RewardTokenAddress = address(0x97Fd477e1893a2eEDcC7DEFE19fcDA7bF3EB6F1f);
 
     constructor() ERC721("KleeTokenV6", "KT6") {
-        _KV2 = IERC20(_KV2Address);
+        _RewardToken = IERC20(_RewardTokenAddress);
+        tokenCounter = 0;
     }
 
-    function awardBakudan(string memory tokenURI,uint256 amount)
-        public
-        returns (uint256)
-    {
-        _tokenIds.increment();
-        uint256 newItemId = _tokenIds.current();
-        _mint(_msgSender(), newItemId);
-        _setTokenURI(newItemId, tokenURI);
-
-        _KV2.transferFrom(_msgSender(),address(this),amount);  //hardcode the decimals as it's not part of IERC20
-        return newItemId;
-    }
-    function getNumToken() public view returns (uint256) {
-        return _tokenIds.current();
+    //@dev: when the LP has harvested enough reward token to exchange for an nft
+    //    : this function will be called by owner, with the amount of token needed for the nft set by front-end
+    //    : for e.g if legendary tier NFT is to be minted, amount should be large
+    //    : backend doesnt do that stuff
+    function awardNFT(string memory tokenURI,uint256 amount,address rewardeeAddress) public onlyOwner {
+        //our id starts from 1 cuz matlab
+        tokenCounter.add(1);
+        _safeMint(_msgSender(), tokenCounter);
+        _setTokenURI(tokenCounter, tokenURI);
+        _RewardToken.transferFrom(rewardeeAddress,address(this),amount);
     }
 
-    function setKV2Address(address _newkv2) external onlyOwner {
-        _KV2Address = address(_newkv2);
-        _KV2 = IERC20(_KV2Address);
+
+
+    function setRewardTokenAddress(address _newRewardToken) external onlyOwner {
+        _RewardTokenAddress = address(_newRewardToken);
+        _RewardToken = IERC20(_RewardTokenAddress);
     }
 }
