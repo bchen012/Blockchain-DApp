@@ -8,7 +8,7 @@ type Props = {
 const LiquidateLayout = ({ children }: Props) => {
     return (
         <Page themeId="tool">
-            <Header title={'Liquidate '} />
+            <Header title={'Liquidate'} />
             {children}
         </Page>
     );
