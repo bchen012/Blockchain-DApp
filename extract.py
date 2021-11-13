@@ -38,10 +38,8 @@ for json_file in json_list:
     data = json.load(json_f)
     address = data['networks']['5777']['address']
     abi = data['abi']
-
     config_f.write("export const " + address_config_names[index] + " = '" + address + "'\n")
-
-    config_f.write("export const " + abi_config_names[index] + " = " + str(abi) + "\n")
+    config_f.write("export const " + abi_config_names[index] + " = " + json.dumps(abi) + "\n")
     index += 1
 
 
