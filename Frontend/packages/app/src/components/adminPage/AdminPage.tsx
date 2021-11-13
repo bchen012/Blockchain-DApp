@@ -36,6 +36,9 @@ export const AdminPage = () => {
         setAccount(accounts[0]);
     });
 
+    web3.eth.getBalance(K_MINE_CONTRACT_ADDRESS).then(result => {
+        console.log('Klee_mine Eth Balance:', result/1e18)
+    })
 
     const getEthBalance = async () => {
         await kv2_contract.methods.getEtherBalance().call().then(etherBalance => {
@@ -46,8 +49,9 @@ export const AdminPage = () => {
     getEthBalance().then();
 
     const getPoolInfo = async () => {
-        await k_mine_contract.methods.getPoolInfo('0').call().then(Result => {
-            console.log('Pool 1 info:', Result);
+        await k_mine_contract.methods.getPoolInfo(0).call().then(Result => {
+            console.log('Pool 0 info:', Result);
+
             setTokenA_P1(Result[0]);
             setTokenB_P1(Result[1]);
         });
@@ -60,8 +64,8 @@ export const AdminPage = () => {
     getPoolInfo().then();
 
     const initialStake = async () => {
-        k_mine_contract.methods.stake('0', web3.utils.toWei('50'), web3.utils.toWei('0'))
-            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('50')})
+        k_mine_contract.methods.stake('0', web3.utils.toWei('1'), web3.utils.toWei('0'))
+            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('1')})
             .once('receipt', (receipt) => {
                console.log('INITIAL STAKE')
             });
