@@ -5,6 +5,8 @@ import {
     K_MINE_ABI,
     K_MINE_CONTRACT_ADDRESS,
     K_REWARD_CONTRACT_ADDRESS,
+    YM1_ABI,
+    YM2_ABI,
     YM1_CONTRACT_ADDRESS,
     YM2_CONTRACT_ADDRESS
 } from "../../config";
@@ -12,6 +14,8 @@ import NavigationIcon from '@material-ui/icons/Navigation';
 import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 import WbCloudyIcon from '@material-ui/icons/WbCloudy';
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 import {Button, TextField, Typography, Box} from "@material-ui/core";
 import React, {useState, useRef, useEffect} from "react";
 
@@ -30,6 +34,8 @@ type RowData = {
 export const LiquidatePage = () => {
     const [etherAmount, setEtherAmount]  = useState<string>('0');
     const [account, setAccount] = useState<any>('');
+    const [totalYm1, setTotalYm1] = useState<string>('0');
+    const [totalYm2, setTotalYm2] = useState<string>('0');
 
     const [tokenA_P1, setTokenA_P1] = useState<string>('0');
     const [tokenB_P1, setTokenB_P1] = useState<string>('0');
@@ -39,6 +45,8 @@ export const LiquidatePage = () => {
 
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const k_mine_contract = new web3.eth.Contract(K_MINE_ABI, K_MINE_CONTRACT_ADDRESS);
+    const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
+    const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
 
     // const handleAmountChange = (e) => {
     //     setEtherAmount(e.target.value);
@@ -55,6 +63,18 @@ export const LiquidatePage = () => {
 
     useEffect(() => {
         let isMounted: boolean = true;
+
+        const getTotalYM1 = async () => {
+            await ym1_contract.methods.balanceOf(YM1_CONTRACT_ADDRESS).call().then(accountBalance => {
+                if (isMounted) setTotalYm1(accountBalance/1e18);
+            });
+        };
+
+        const getTotalYM2 = async () => {
+            await ym2_contract.methods.balanceOf(YM2_CONTRACT_ADDRESS).call().then(accountBalance => {
+                if (isMounted) setTotalYm2(accountBalance/1e18);
+            });
+        };
 
         const getPoolInfo = async () => {
             await k_mine_contract.methods.getPoolInfo(0).call().then(Result => {
@@ -77,8 +97,9 @@ export const LiquidatePage = () => {
             console.log('Klee_mine Eth Balance:', result/1e18)
             if (isMounted) setEtherAmount(result/1e18);
         })
-
-       getPoolInfo().then();
+        getPoolInfo().then();
+        getTotalYM1().then();
+        getTotalYM2().then();
 
         return () => { isMounted = false };
     }, []);
@@ -86,7 +107,7 @@ export const LiquidatePage = () => {
 
     const columns: TableColumn<RowData>[] = [
         {
-            title: 'Token Pair',
+            title: 'Pair',
             field: 'token_pair',
             highlight: true,
             cellStyle: {
@@ -176,8 +197,8 @@ export const LiquidatePage = () => {
             },
         },
         {
-            title: 'Liquidate (Token 1)',
-            field: 'deposit_amount_1',
+            title: 'Add or remove Liquidity',
+            field: 'add_or_remove',
             highlight: true,
             cellStyle: {
                 width: 500,
@@ -186,48 +207,13 @@ export const LiquidatePage = () => {
             render: (pair: RowData) => {
                 return (
                     <div>
-                        <TextField
-                            required
-                            id="outlined-required"
-                            label="Amount"
-                            defaultValue=""
-                            value={'0'}
-                            fullWidth
-                            autoComplete={"off"}
-                        />
-                        <br/>
                         <Box m={2} pt={3}>
-                            <Button variant="contained" endIcon={pair.token_1_icon} onClick={() => {
-                            }}>Liquidate </Button>
+                            <Button variant="contained" endIcon={<AddIcon />} onClick={() => {
+                            }}>Add </Button>
                         </Box>
-                    </div>
-                )
-            },
-        },
-        {
-            title: 'Liquidate (Token 2)',
-            field: 'deposit_amount_2',
-            highlight: true,
-            cellStyle: {
-                width: 500,
-                maxWidth: 500
-            },
-            render: (pair: RowData) => {
-                return (
-                    <div>
-                         <TextField
-                                required
-                                id="outlined-required"
-                                label="Amount"
-                                defaultValue=""
-                                value={'0'}
-                                fullWidth
-                                autoComplete={"off"}
-                            />
-                        <br/>
                         <Box m={2} pt={3}>
-                        <Button variant="contained" endIcon={pair.token_2_icon} onClick={() => {
-                        }}>Liquidate </Button>
+                            <Button variant="outlined" endIcon={<RemoveIcon />} onClick={() => {
+                            }}>Remove </Button>
                         </Box>
                     </div>
                 )
@@ -236,22 +222,22 @@ export const LiquidatePage = () => {
     ]
     const data: RowData [] = [
         {
-            token_pair: 'ETH - YM1',
+            token_pair: 'ETH-YM1',
             total_stake_1: etherAmount,
             token_1: 'ETH',
             token_2: 'YM1',
-            total_stake_2: '1000',
+            total_stake_2: totalYm1,
             deposit_amount_1: tokenA_P1,
             deposit_amount_2: tokenB_P1,
             token_1_icon: (<NavigationIcon />),
             token_2_icon: (<WbCloudyIcon />)
         },
         {
-            token_pair: 'ETH - YM2',
+            token_pair: 'ETH-YM2',
             total_stake_1: etherAmount,
             token_1: 'ETH',
             token_2: 'YM2',
-            total_stake_2: '1000',
+            total_stake_2: totalYm2,
             deposit_amount_1: tokenA_P2,
             deposit_amount_2: tokenB_P2,
             token_1_icon: (<NavigationIcon />),
@@ -263,7 +249,7 @@ export const LiquidatePage = () => {
         <LiquidateLayout >
             <Content>
                 <Table<RowData>
-                    title="Liquidity Pools"
+                    title="Available Pool Pairs"
                     options={{
                         search: false,
                         paging: true,

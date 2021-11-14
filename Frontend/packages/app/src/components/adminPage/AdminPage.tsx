@@ -38,8 +38,9 @@ export const AdminPage = () => {
     getEthBalance().then();
 
     const initialStake = async () => {
-        k_mine_contract.methods.stake('0', web3.utils.toWei('1'), web3.utils.toWei('0'))
-            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('1')})
+        const initial_stake_amount = '50';
+        k_mine_contract.methods.stake('0', web3.utils.toWei(initial_stake_amount), web3.utils.toWei('0'))
+            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei(initial_stake_amount)})
             .once('receipt', (receipt) => {
                console.log('INITIAL STAKE')
             });
