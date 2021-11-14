@@ -52,6 +52,10 @@ contract KleeMine is Ownable {
         return (pools[poolID].TokenA_amount,pools[poolID].TokenB_amount);
     }
 
+    function getUserStakeInfo(uint256 poolID) public view returns(uint256,uint256) {
+        return (userInfo[poolID][_msgSender()].TokenAAmount,userInfo[poolID][_msgSender()].TokenBAmount);
+    }
+
 // ################## helper functions 
     function _deposit(address _tokenAddr,uint256 amount,address user_addr) public payable {
         //transfer the money from certain coins to the pools
