@@ -1,79 +1,134 @@
 import LiquidateLayout from "./LiquidateLayout";
 import {Content} from '@backstage/core-components';
 import Web3 from "web3";
-import { KV2_CONTRACT_ADDRESS, KV2_ABI } from "../../config";
-import {Button, Card, CardContent, CardMedia, TextField} from "@material-ui/core";
-import React, {useState} from "react";
+import {
+    K_MINE_ABI,
+    K_MINE_CONTRACT_ADDRESS,
+    K_REWARD_CONTRACT_ADDRESS,
+    YM1_ABI,
+    YM2_ABI,
+    YM1_CONTRACT_ADDRESS,
+    YM2_CONTRACT_ADDRESS
+} from "../../config";
+import React, {useState, useEffect, useMemo} from "react";
+import {LiquidityTable} from "./LiquidityTable";
+import {LiquidateTabs, TechFamilyTab} from "./LiquidateTabs";
+import {EditLiquidity} from "./EditLiquidity";
 
 export const LiquidatePage = () => {
-    const [buyAmount, setBuyAmount] = useState<string>('0');
-    const [etherAmount, setEtherAmount]  = useState<string>('');
-    const [exchangeRate, setExchangeRate] = useState<string>('');
+
     const [account, setAccount] = useState<any>('');
-
+    const [etherAmount, setEtherAmount]  = useState<string>('0');
+    const [selectedTab, setSelectedTab] = useState<string>();
+    const [selectedToken2, setSelectedToken2] = useState<string>('YM1');
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
-    const contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
-    web3.eth.getAccounts().then(accounts => {
-        setAccount(accounts[0]);
-    });
+    const k_mine_contract = new web3.eth.Contract(K_MINE_ABI, K_MINE_CONTRACT_ADDRESS);
+    const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
+    const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
 
-    const getExchangeRate = async () => {
-        await contract.methods.getExchangeRate().call().then(exr => {
-            setExchangeRate(exr);
+    const stake_tokens = async (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => {
+        if (add){
+            if (parseInt(token1Amount) > 0)
+                deposit_tokens(token1, token1Amount).then();
+            if (parseInt(token2Amount) > 0)
+                deposit_tokens(token2, token2Amount).then();
+        }
+    }
+
+    const deposit_tokens = async (token: string, amount: string) => {
+        amount = web3.utils.toWei(amount)
+        if (token === 'ETH') {
+            k_mine_contract.methods.stake('0', amount, web3.utils.toWei('0'))
+                .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:amount})
+                .once('receipt', (receipt) => {
+                    console.log('Stake', amount, token)
+                    console.log('Transferred', amount, token)
+                });
+        }
+        else if (token === 'YM1') {
+            ym1_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, amount)
+                .send({from:account})
+                .once('receipt', (receipt) => {
+                    console.log('APPROVED')
+                    k_mine_contract.methods.stake('0', web3.utils.toWei('0'), web3.utils.toWei(amount))
+                        .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('0')})
+                        .once('receipt', (receipt) => {
+                            console.log('Stake', amount, token)
+                        });
+                })
+
+            // ym1_contract.methods.transfer(YM1_CONTRACT_ADDRESS, amount)
+            //     .send({from: account})
+            //     .once('receipt', (receipt) => {
+            //     console.log("Transfer success", receipt);
+            // });
+        }
+        else {
+            k_mine_contract.methods.stake('1', web3.utils.toWei('0'), web3.utils.toWei(amount))
+                .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('0')})
+                .once('receipt', (receipt) => {
+                    console.log('Stake', amount, token)
+                });
+
+            ym1_contract.methods.transfer(YM2_CONTRACT_ADDRESS, amount)
+                .send({from: account})
+                .once('receipt', (receipt) => {
+                    console.log("Transfer success", receipt);
+                });
+        }
+    }
+
+    useEffect(() => {
+        let isMounted: boolean = true;
+        web3.eth.getAccounts().then(accounts => {
+            if (isMounted) setAccount(accounts[0]);
         });
-    }
 
-    const handleAmountChange = (e) => {
-        setEtherAmount(e.target.value);
-        setBuyAmount(e.target.value * exchangeRate);
-    }
+        web3.eth.getBalance(K_MINE_CONTRACT_ADDRESS).then(result => {
+            console.log('Klee_mine Eth Balance:', result/1e18)
+            if (isMounted) setEtherAmount(result/1e18);
+        })
+        return () => { isMounted = false };
+    }, []);
 
-    const buyCoin = async () => {
-        await contract.methods.buyCoin()
-            .send({from:account, to:KV2_CONTRACT_ADDRESS, value:web3.utils.toWei(etherAmount)})
-            .once('receipt', (receipt) => {
-                console.log("Transfer success", receipt);
-            });
-    }
 
-    getExchangeRate().then();
+
+    const tabs = useMemo<TechFamilyTab[]>(
+        () => [
+            {
+                id: 'pool pairs',
+                label: 'Pool Pairs',
+            },
+            {
+                id: 'add liquidity',
+                label: 'Add Liquidity'
+            },
+            {
+                id: 'remove liquidity',
+                label: 'Remove Liquidity'
+            }
+        ],
+        [],
+    );
+
+    const TabContent = () => {
+        console.log('tabcontent')
+        if (selectedTab === 'Add Liquidity')
+            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} Account={account} stake_tokens={stake_tokens}/>
+        else if (selectedTab === 'Remove Liquidity')
+            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} Account={account} stake_tokens={stake_tokens}/>
+
+        return <LiquidityTable ym1_contract={ym1_contract} ym2_contract={ym2_contract} k_mine_contract={k_mine_contract} etherAmount={etherAmount} />
+    }
 
     return (
         <LiquidateLayout >
+            <LiquidateTabs
+                tabs={tabs}
+                onChange={({ label }) => setSelectedTab(label)}
+            />
             <Content>
-                <Card >
-                    <CardMedia
-                        component="img"
-                        height="450"
-                        image="Klee_8.jpeg"
-                        alt="green iguana"
-                    />
-                    <CardContent>
-                        <h2>Enter the amount of Ether you want to swap to KV2:</h2>
-                        <div>
-                            <TextField
-                                required
-                                id="outlined-required"
-                                label="Amount"
-                                defaultValue=""
-                                value={etherAmount}
-                                fullWidth
-                                onChange={handleAmountChange}
-                                autoComplete={"off"}
-                            />
-                            <br/>
-                            <h2>To be received: </h2>
-                            <h3>
-                                {buyAmount} KV2
-                            </h3>
-
-                        </div>
-                        <br/>
-                        <Button variant="contained" onClick={()=>{
-                            buyCoin().then(()=>{setEtherAmount('')})
-                        }}>Buy</Button>
-                    </CardContent>
-                </Card>
+                <TabContent />
             </Content>
         </LiquidateLayout>
     );

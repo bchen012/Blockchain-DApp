@@ -15,18 +15,11 @@ import {
 import {SetExchangeRate} from "./SetExchangeRate";
 import {AdminBalance} from "./AdminBalance";
 import {InitiatePage} from "./InitiatePage";
-import {Button, Card, CardContent, CardMedia, TextField} from "@material-ui/core";
 
 export const AdminPage = () => {
     const [selectedTab, setSelectedTab] = useState<string>();
     const [account, setAccount] = useState<any>('');
     const [etherBalance, setEtherBalance] = useState<string>('')
-
-    const [tokenA_P2, setTokenA_P2] = useState<string>('0');
-    const [tokenB_P2, setTokenB_P2] = useState<string>('0');
-
-    const [tokenA_P1, setTokenA_P1] = useState<string>('0');
-    const [tokenB_P1, setTokenB_P1] = useState<string>('0');
 
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
@@ -36,7 +29,6 @@ export const AdminPage = () => {
         setAccount(accounts[0]);
     });
 
-
     const getEthBalance = async () => {
         await kv2_contract.methods.getEtherBalance().call().then(etherBalance => {
             setEtherBalance(etherBalance/1e18);
@@ -45,23 +37,10 @@ export const AdminPage = () => {
 
     getEthBalance().then();
 
-    const getPoolInfo = async () => {
-        await k_mine_contract.methods.getPoolInfo('0').call().then(Result => {
-            console.log('Pool 1 info:', Result);
-            setTokenA_P1(Result[0]);
-            setTokenB_P1(Result[1]);
-        });
-        await k_mine_contract.methods.getPoolInfo('1').call().then(Result => {
-            setTokenA_P2(Result[0])
-            setTokenB_P2(Result[1])
-        });
-    };
-
-    getPoolInfo().then();
-
     const initialStake = async () => {
-        k_mine_contract.methods.stake('0', web3.utils.toWei('50'), web3.utils.toWei('0'))
-            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('50')})
+        const initial_stake_amount = '50';
+        k_mine_contract.methods.stake('0', web3.utils.toWei(initial_stake_amount), web3.utils.toWei('0'))
+            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei(initial_stake_amount)})
             .once('receipt', (receipt) => {
                console.log('INITIAL STAKE')
             });
@@ -110,7 +89,7 @@ export const AdminPage = () => {
         if (selectedTab === 'Ether Balance')
             return <AdminBalance balance={etherBalance}/>
         else if (selectedTab === 'Initiate')
-            return <InitiatePage init={init} tokenA_P1={tokenA_P1} tokenB_P1={tokenB_P1} tokenA_P2={tokenA_P2} tokenB_P2={tokenB_P2} initialStake={initialStake}/>
+            return <InitiatePage init={init} initialStake={initialStake}/>
         return <SetExchangeRate setExchange={setExchange}/>
     }
 
