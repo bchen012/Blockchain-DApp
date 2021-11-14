@@ -24,7 +24,7 @@ type RowData = {
     token_2_icon: any
 }
 
-export const LiquidityTable = ({k_mine_contract}: LiquidityTableProps) => {
+export const LiquidityTable = ({k_mine_contract, setLiquidityChoice}: LiquidityTableProps) => {
     const [totalYm1, setTotalYm1] = useState<string>('0');
     const [totalYm2, setTotalYm2] = useState<string>('0');
     const [totalEth, setTotalEth] = useState<string>('0');
@@ -158,29 +158,6 @@ export const LiquidityTable = ({k_mine_contract}: LiquidityTableProps) => {
                 )
             },
         },
-        {
-            title: 'Add or remove Liquidity',
-            field: 'add_or_remove',
-            highlight: true,
-            cellStyle: {
-                width: 500,
-                maxWidth: 500
-            },
-            render: (pair: RowData) => {
-                return (
-                    <div>
-                        <Box m={2} pt={3}>
-                            <Button variant="contained" endIcon={<AddIcon />} onClick={() => {
-                            }}>Add </Button>
-                        </Box>
-                        <Box m={2} pt={3}>
-                            <Button variant="outlined" endIcon={<RemoveIcon />} onClick={() => {
-                            }}>Remove </Button>
-                        </Box>
-                    </div>
-                )
-            },
-        }
     ]
     const data: RowData [] = [
         {
@@ -209,6 +186,7 @@ export const LiquidityTable = ({k_mine_contract}: LiquidityTableProps) => {
 
     return (
         <div>
+
             <Table<RowData>
                 title="Available Pool Pairs"
                 options={{

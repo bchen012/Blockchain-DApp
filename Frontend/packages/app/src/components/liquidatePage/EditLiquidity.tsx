@@ -7,25 +7,25 @@ import {
     InputLabel,
     Select,
     Box,
-    TextField, Button
+    TextField, Button, Chip
 } from '@material-ui/core';
-import React, {useEffect} from 'react';
+import React from 'react';
 
 type EditLiquidityProps = {
     Token_1: string,
     Token_2: string,
     Add: boolean,
-    Account: string
     stake_tokens: (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => void
 }
-// TODO: Select pool pairs on this page and edit drop down list accordingly
 
-export const EditLiquidity = ({ Token_1, Token_2, Add, Account, stake_tokens }: EditLiquidityProps) => {
+export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiquidityProps) => {
 
     const [token1, setToken1] = React.useState(Token_1);
     const [token2, setToken2] = React.useState(Token_2);
     const [token1Amount, setToken1Amount] = React.useState('');
     const [token2Amount, setToken2Amount] = React.useState('');
+
+    const [pool, setPool] = React.useState('ETH-YM1');
 
     // useEffect(() => {
     //     let isMounted: boolean = true;
@@ -35,12 +35,13 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, Account, stake_tokens }: 
     // }, []);
 
 
-    const handleChange1 = (event: any) => {
-        setToken1(event.target.value as string);
-    };
-
-    const handleChange2 = (event: any) => {
-        setToken2(event.target.value as string);
+    const handleChangePool = (event: any) => {
+        const event_val = event.target.value as string;
+        setPool(event_val);
+        if (event_val === 'ETH-YM1')
+            setToken2('YM1')
+        else
+            setToken2('YM2')
     };
 
     return (
@@ -52,20 +53,26 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, Account, stake_tokens }: 
             />
             <CardContent>
                 <Box sx={{ minWidth: 120 }}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Liquidity Pool</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={pool}
+                            label="Pool"
+                            onChange={handleChangePool}
+                        >
+                            <MenuItem value={'ETH-YM1'}>ETH-YM1</MenuItem>
+                            <MenuItem value={'ETH-YM2'}>ETH-YM2</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+                <br/>
+                <br/>
+                <br/>
+                <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Token 1</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={token1}
-                        label="Token 1"
-                        onChange={handleChange1}
-                    >
-                        <MenuItem value={'ETH'}>ETH</MenuItem>
-                        <MenuItem value={'YM1'}>YM1</MenuItem>
-                        <MenuItem value={'YM2'}>YM2</MenuItem>
-                    </Select>
-                    <br/>
+                    <h2>{token1}</h2>
                     <TextField
                         id="outlined-required"
                         label="Token 1 Amount"
@@ -76,25 +83,11 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, Account, stake_tokens }: 
                     />
                 </FormControl>
                 </Box>
-
-
                 <br/>
                 <br/>
                 <br/>
                 <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Token 2</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={token2}
-                        label="Token 2"
-                        onChange={handleChange2}
-                    >
-                        <MenuItem value={'ETH'}>ETH</MenuItem>
-                        <MenuItem value={'YM1'}>YM1</MenuItem>
-                        <MenuItem value={'YM2'}>YM2</MenuItem>
-                    </Select>
-                    <br/>
+                    <h2>{token2}</h2>
                     <TextField
                         id="outlined-required"
                         label="Token 2 Amount"

@@ -1,5 +1,6 @@
 import LiquidateLayout from "./LiquidateLayout";
 import {Content} from '@backstage/core-components';
+import {Chip} from "@material-ui/core";
 import Web3 from "web3";
 import {
     K_MINE_ABI,
@@ -69,7 +70,7 @@ export const LiquidatePage = () => {
                         });
                 })
         }
-    }
+    };
 
     useEffect(() => {
         let isMounted: boolean = true;
@@ -106,11 +107,11 @@ export const LiquidatePage = () => {
     const TabContent = () => {
         console.log('tabcontent')
         if (selectedTab === 'Add Liquidity')
-            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} Account={account} stake_tokens={stake_tokens}/>
+            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} stake_tokens={stake_tokens}/>
         else if (selectedTab === 'Remove Liquidity')
-            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} Account={account} stake_tokens={stake_tokens}/>
+            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={false} stake_tokens={stake_tokens}/>
 
-        return <LiquidityTable k_mine_contract={k_mine_contract} />
+        return <LiquidityTable k_mine_contract={k_mine_contract}/>
     }
 
     return (
@@ -120,6 +121,7 @@ export const LiquidatePage = () => {
                 onChange={({ label }) => setSelectedTab(label)}
             />
             <Content>
+                <Chip label={'Account: ' + account} />
                 <TabContent />
             </Content>
         </LiquidateLayout>
