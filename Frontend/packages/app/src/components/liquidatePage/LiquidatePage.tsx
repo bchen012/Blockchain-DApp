@@ -33,6 +33,9 @@ export const LiquidatePage = () => {
             if (parseInt(token2Amount) > 0)
                 deposit_tokens(token2, token2Amount).then();
         }
+        else {
+            harvest_tokens(token2).then();
+        }
     }
 
     const deposit_tokens = async (token: string, amount: string) => {
@@ -68,9 +71,26 @@ export const LiquidatePage = () => {
                         .once('receipt', (receipt) => {
                             console.log('Stake', amount, token)
                         });
-                })
+                });
         }
     };
+
+    const harvest_tokens = async (token: string) => {
+        if (token === 'YM1') {
+            k_mine_contract.methods.harvestOnePool('0')
+                .send({from:account})
+                .once('receipt', (receipt) => {
+                    console.log('Harvested Pool 1')
+                });
+        }
+        else {
+            k_mine_contract.methods.harvestOnePool('1')
+                .send({from:account})
+                .once('receipt', (receipt) => {
+                    console.log('Harvested Pool 2')
+                });
+        }
+    }
 
     useEffect(() => {
         let isMounted: boolean = true;

@@ -44,12 +44,48 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiqui
             setToken2('YM2')
     };
 
+    if (!Add)
+        return (
+            <Card >
+                <CardMedia
+                    component="img"
+                    height="300"
+                    image={Add ? "Klee_1.jpeg": "Klee_3.jpeg"}
+                />
+                <CardContent>
+                    <Box sx={{ minWidth: 120 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Liquidity Pool</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={pool}
+                                label="Pool"
+                                onChange={handleChangePool}
+                            >
+                                <MenuItem value={'ETH-YM1'}>ETH-YM1</MenuItem>
+                                <MenuItem value={'ETH-YM2'}>ETH-YM2</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <br/>
+                    <br/>
+                    <br/>
+
+                    <Button variant="contained" onClick={() => {
+                        stake_tokens(token1, token2, token1Amount ?? '0', token2Amount ?? '0', Add)
+                    }}> {Add ? 'Add':'Remove'} </Button>
+
+                </CardContent>
+            </Card>
+        )
+
     return (
         <Card >
             <CardMedia
                 component="img"
                 height="300"
-                image="Klee_1.jpeg"
+                image={Add ? "Klee_1.jpeg": "Klee_3.jpeg"}
             />
             <CardContent>
                 <Box sx={{ minWidth: 120 }}>
@@ -70,6 +106,7 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiqui
                 <br/>
                 <br/>
                 <br/>
+
                 <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                     <h2>{token1}</h2>
@@ -99,6 +136,7 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiqui
                 </FormControl>
                 <br/>
                 <br/>
+
                 <Button variant="contained" onClick={() => {
                     stake_tokens(token1, token2, token1Amount ?? '0', token2Amount ?? '0', Add)
                 }}> {Add ? 'Add':'Remove'} </Button>
