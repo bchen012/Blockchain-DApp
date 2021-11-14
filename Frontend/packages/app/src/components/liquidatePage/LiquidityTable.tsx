@@ -49,11 +49,12 @@ export const LiquidityTable = ({k_mine_contract, setLiquidityChoice}: LiquidityT
 
         const getUserInfo = async () => {
             await k_mine_contract.methods.getUserStakeInfo('0').call().then(Result => {
-                console.log('USER INFO: ', Result);
+                console.log('USER INFO POOL 1: ', Result);
                 if (isMounted) setTokenA_P1(Result[0]/1e18);
                 if (isMounted) setTokenB_P1(Result[1]/1e18);
             });
             await k_mine_contract.methods.getUserStakeInfo('1').call().then(Result => {
+                console.log('USER INFO POOL 2: ', Result);
                 if (isMounted) setTokenA_P2(Result[0]/1e18)
                 if (isMounted) setTokenB_P2(Result[1]/1e18)
             });
