@@ -53,25 +53,25 @@ contract KleeMine is Ownable {
     }
 
 // ################## helper functions 
-    function _deposit(address _tokenAddr,uint256 amount) public payable {
+    function _deposit(address _tokenAddr,uint256 amount,address user_addr) public payable {
         //transfer the money from certain coins to the pools
         IERC20 _ERC20Token;
         if (_tokenAddr == address(0))  {//native token- eth
             //the amount of eth send here will be given to the contract
         } else {
             _ERC20Token = IERC20(_tokenAddr);
-            _ERC20Token.transferFrom(_msgSender(),address(this),amount);
+            _ERC20Token.transferFrom(address(user_addr),address(this),amount);
         }
 
     }
 
-    function _withdraw(address _tokenAddr,uint256 amount) internal {
+    function _withdraw(address _tokenAddr,uint256 amount,address user_addr) internal {
         IERC20 _ERC20Token; 
         if (_tokenAddr == address(0))  {//native token- eth
-            payable(_msgSender()).transfer(amount);
+            payable(address(user_addr)).transfer(amount);
         } else {
             _ERC20Token = IERC20(_tokenAddr);
-            _ERC20Token.transfer(_msgSender(),amount);
+            _ERC20Token.transfer(address(user_addr),amount);
         }
     }
 
@@ -86,8 +86,9 @@ contract KleeMine is Ownable {
 // ### core functions 
     function stake(uint256 poolID,uint256 amountA, uint256 amountB) public payable {
         require(poolID < pools.length);
-        _deposit(pools[poolID].TokenA,amountA);
-        _deposit(pools[poolID].TokenB,amountB);
+        address user_addr = _msgSender();
+        _deposit(pools[poolID].TokenA,amountA,address(user_addr));
+        _deposit(pools[poolID].TokenB,amountB,address(user_addr));
         if (!LPExists[poolID][_msgSender()]) {
             LPExists[poolID][_msgSender()] = true;
         }
@@ -131,10 +132,11 @@ contract KleeMine is Ownable {
     function harvestOnePool(uint256 poolID) public {
         require(poolID < pools.length);
         require(LPExists[poolID][_msgSender()] == true);
+        address user_addr = _msgSender();
         uint256 amountA = userInfo[poolID][_msgSender()].TokenAAmount;
         uint256 amountB = userInfo[poolID][_msgSender()].TokenBAmount;
-        _withdraw(pools[poolID].TokenA,amountA);
-        _withdraw(pools[poolID].TokenB,amountB);
+        _withdraw(pools[poolID].TokenA,amountA,address(user_addr));
+        _withdraw(pools[poolID].TokenB,amountB,address(user_addr));
 
         UserInfo storage deezUser = userInfo[poolID][_msgSender()];
         deezUser.TokenAAmount = userInfo[poolID][_msgSender()].TokenAAmount.sub(amountA);
