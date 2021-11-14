@@ -1,4 +1,4 @@
-import { TextField, Card, CardMedia, CardContent, Button} from '@material-ui/core';
+import { Card, CardMedia, CardContent, Button} from '@material-ui/core';
 import React from 'react';
 
 type InitiatePageProps = {
