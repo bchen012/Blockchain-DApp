@@ -18,6 +18,7 @@ type EditLiquidityProps = {
     Account: string
     stake_tokens: (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => void
 }
+// TODO: Select pool pairs on this page and edit drop down list accordingly
 
 export const EditLiquidity = ({ Token_1, Token_2, Add, Account, stake_tokens }: EditLiquidityProps) => {
 

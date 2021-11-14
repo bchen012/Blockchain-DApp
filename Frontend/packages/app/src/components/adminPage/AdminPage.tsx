@@ -10,7 +10,9 @@ import {
     K_MINE_CONTRACT_ADDRESS,
     K_REWARD_CONTRACT_ADDRESS,
     YM1_CONTRACT_ADDRESS,
-    YM2_CONTRACT_ADDRESS
+    YM2_CONTRACT_ADDRESS,
+    YM1_ABI,
+    YM2_ABI
 } from "../../config";
 import {SetExchangeRate} from "./SetExchangeRate";
 import {AdminBalance} from "./AdminBalance";
@@ -24,6 +26,8 @@ export const AdminPage = () => {
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
     const k_mine_contract = new web3.eth.Contract(K_MINE_ABI, K_MINE_CONTRACT_ADDRESS);
+    const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
+    const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
 
     web3.eth.getAccounts().then(accounts => {
         setAccount(accounts[0]);
@@ -38,11 +42,45 @@ export const AdminPage = () => {
     getEthBalance().then();
 
     const initialStake = async () => {
-        const initial_stake_amount = '50';
-        k_mine_contract.methods.stake('0', web3.utils.toWei(initial_stake_amount), web3.utils.toWei('0'))
-            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei(initial_stake_amount)})
+        const initial_stake_amount_eth = '50';
+        const initial_stake_amount_ym = '500';
+
+        k_mine_contract.methods.stake('0', web3.utils.toWei(initial_stake_amount_eth), web3.utils.toWei('0'))
+            .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei(initial_stake_amount_eth)})
             .once('receipt', (receipt) => {
-               console.log('INITIAL STAKE')
+               console.log('INITIAL ETH STAKE DONE')
+
+                ym1_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, web3.utils.toWei(initial_stake_amount_ym))
+                    .send({from:account})
+                    .once('receipt', (receipt) => {
+                        console.log('YM1 APPROVED')
+
+                        k_mine_contract.methods.stake('0', web3.utils.toWei('0'), web3.utils.toWei(initial_stake_amount_ym))
+                            .send({
+                                from: account,
+                                to: K_MINE_CONTRACT_ADDRESS,
+                                value: web3.utils.toWei('0')
+                            })
+                            .once('receipt', (receipt) => {
+                                console.log('INITIAL YM1 STAKE')
+
+                                ym2_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, web3.utils.toWei(initial_stake_amount_ym))
+                                    .send({from:account})
+                                    .once('receipt', (receipt) => {
+                                        console.log('YM2 APPROVED')
+
+                                        k_mine_contract.methods.stake('1', web3.utils.toWei('0'), web3.utils.toWei(initial_stake_amount_ym))
+                                            .send({
+                                                from: account,
+                                                to: K_MINE_CONTRACT_ADDRESS,
+                                                value: web3.utils.toWei('0')
+                                            })
+                                            .once('receipt', (receipt) => {
+                                                console.log('INITIAL YM2 STAKE')
+                                            });
+                                    });
+                            });
+                    });
             });
     }
 

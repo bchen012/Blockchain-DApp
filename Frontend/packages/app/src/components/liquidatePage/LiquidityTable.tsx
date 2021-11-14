@@ -1,6 +1,5 @@
 import {Table, TableColumn} from '@backstage/core-components';
 import React, {useEffect, useState} from "react";
-import {YM1_CONTRACT_ADDRESS, YM2_CONTRACT_ADDRESS} from "../../config";
 import {Box, Button, Typography} from "@material-ui/core";
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz";
 import AddIcon from "@material-ui/icons/Add";
@@ -10,10 +9,7 @@ import WbCloudyIcon from "@material-ui/icons/WbCloudy";
 import RadioButtonCheckedIcon from "@material-ui/icons/RadioButtonChecked";
 
 type LiquidityTableProps = {
-    ym1_contract: any,
-    ym2_contract: any,
     k_mine_contract: any,
-    etherAmount: string
 }
 
 type RowData = {
@@ -28,9 +24,11 @@ type RowData = {
     token_2_icon: any
 }
 
-export const LiquidityTable = ({ym1_contract, ym2_contract,k_mine_contract, etherAmount}: LiquidityTableProps) => {
+export const LiquidityTable = ({k_mine_contract}: LiquidityTableProps) => {
     const [totalYm1, setTotalYm1] = useState<string>('0');
     const [totalYm2, setTotalYm2] = useState<string>('0');
+    const [totalEth, setTotalEth] = useState<string>('0');
+
     const [tokenA_P1, setTokenA_P1] = useState<string>('0');
     const [tokenB_P1, setTokenB_P1] = useState<string>('0');
     const [tokenA_P2, setTokenA_P2] = useState<string>('0');
@@ -39,34 +37,30 @@ export const LiquidityTable = ({ym1_contract, ym2_contract,k_mine_contract, ethe
     useEffect(() => {
         let isMounted: boolean = true;
 
-        const getTotalYM1 = async () => {
-            await ym1_contract.methods.balanceOf(YM1_CONTRACT_ADDRESS).call().then(accountBalance => {
-                if (isMounted) setTotalYm1(accountBalance/1e18);
-            });
-        };
-
-        const getTotalYM2 = async () => {
-            await ym2_contract.methods.balanceOf(YM2_CONTRACT_ADDRESS).call().then(accountBalance => {
-                if (isMounted) setTotalYm2(accountBalance/1e18);
-            });
-        };
-
         const getPoolInfo = async () => {
-            await k_mine_contract.methods.getPoolInfo(0).call().then(Result => {
-                console.log('Pool 0 info:', Result);
+            await k_mine_contract.methods.getPoolInfo('0').call().then(Result => {
+                if (isMounted) setTotalEth(Result[0]/1e18);
+                if (isMounted) setTotalYm1(Result[1]/1e18);
+            });
+            await k_mine_contract.methods.getPoolInfo('1').call().then(Result => {
+                if (isMounted) setTotalYm2(Result[1]/1e18);
+            });
+        };
 
+        const getUserInfo = async () => {
+            await k_mine_contract.methods.getUserStakeInfo('0').call().then(Result => {
+                console.log('USER INFO: ', Result);
                 if (isMounted) setTokenA_P1(Result[0]/1e18);
                 if (isMounted) setTokenB_P1(Result[1]/1e18);
             });
-            await k_mine_contract.methods.getPoolInfo('1').call().then(Result => {
+            await k_mine_contract.methods.getUserStakeInfo('1').call().then(Result => {
                 if (isMounted) setTokenA_P2(Result[0]/1e18)
                 if (isMounted) setTokenB_P2(Result[1]/1e18)
             });
         };
 
         getPoolInfo().then();
-        getTotalYM1().then();
-        getTotalYM2().then();
+        getUserInfo().then();
 
         return () => { isMounted = false };
     }, []);
@@ -191,7 +185,7 @@ export const LiquidityTable = ({ym1_contract, ym2_contract,k_mine_contract, ethe
     const data: RowData [] = [
         {
             token_pair: 'ETH-YM1',
-            total_stake_1: etherAmount,
+            total_stake_1: totalEth,
             token_1: 'ETH',
             token_2: 'YM1',
             total_stake_2: totalYm1,
@@ -202,7 +196,7 @@ export const LiquidityTable = ({ym1_contract, ym2_contract,k_mine_contract, ethe
         },
         {
             token_pair: 'ETH-YM2',
-            total_stake_1: etherAmount,
+            total_stake_1: totalEth,
             token_1: 'ETH',
             token_2: 'YM2',
             total_stake_2: totalYm2,

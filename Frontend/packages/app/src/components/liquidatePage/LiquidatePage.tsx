@@ -18,7 +18,6 @@ import {EditLiquidity} from "./EditLiquidity";
 export const LiquidatePage = () => {
 
     const [account, setAccount] = useState<any>('');
-    const [etherAmount, setEtherAmount]  = useState<string>('0');
     const [selectedTab, setSelectedTab] = useState<string>();
     const [selectedToken2, setSelectedToken2] = useState<string>('YM1');
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
@@ -37,6 +36,7 @@ export const LiquidatePage = () => {
 
     const deposit_tokens = async (token: string, amount: string) => {
         amount = web3.utils.toWei(amount)
+        console.log('STAKE ACCOUNT: ', account)
         if (token === 'ETH') {
             k_mine_contract.methods.stake('0', amount, web3.utils.toWei('0'))
                 .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:amount})
@@ -47,47 +47,39 @@ export const LiquidatePage = () => {
         }
         else if (token === 'YM1') {
             ym1_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, amount)
+                .send({from: account})
+                .once('receipt', (receipt) => {
+                    console.log('APPROVED')
+                    k_mine_contract.methods.stake('0', web3.utils.toWei('0'), amount)
+                        .send({from: account, to: K_MINE_CONTRACT_ADDRESS, value: web3.utils.toWei('0')})
+                        .once('receipt', (receipt) => {
+                            console.log('Stake', amount, token)
+                        });
+                });
+        }
+        else {
+            ym2_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, amount)
                 .send({from:account})
                 .once('receipt', (receipt) => {
                     console.log('APPROVED')
-                    k_mine_contract.methods.stake('0', web3.utils.toWei('0'), web3.utils.toWei(amount))
+                    k_mine_contract.methods.stake('1', web3.utils.toWei('0'), amount)
                         .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('0')})
                         .once('receipt', (receipt) => {
                             console.log('Stake', amount, token)
                         });
                 })
-
-            // ym1_contract.methods.transfer(YM1_CONTRACT_ADDRESS, amount)
-            //     .send({from: account})
-            //     .once('receipt', (receipt) => {
-            //     console.log("Transfer success", receipt);
-            // });
-        }
-        else {
-            k_mine_contract.methods.stake('1', web3.utils.toWei('0'), web3.utils.toWei(amount))
-                .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('0')})
-                .once('receipt', (receipt) => {
-                    console.log('Stake', amount, token)
-                });
-
-            ym1_contract.methods.transfer(YM2_CONTRACT_ADDRESS, amount)
-                .send({from: account})
-                .once('receipt', (receipt) => {
-                    console.log("Transfer success", receipt);
-                });
         }
     }
 
     useEffect(() => {
         let isMounted: boolean = true;
         web3.eth.getAccounts().then(accounts => {
-            if (isMounted) setAccount(accounts[0]);
+            if (isMounted) {
+                setAccount(accounts[0])
+                console.log('SET ACCOUNT:', accounts[0]);
+            };
         });
 
-        web3.eth.getBalance(K_MINE_CONTRACT_ADDRESS).then(result => {
-            console.log('Klee_mine Eth Balance:', result/1e18)
-            if (isMounted) setEtherAmount(result/1e18);
-        })
         return () => { isMounted = false };
     }, []);
 
@@ -118,7 +110,7 @@ export const LiquidatePage = () => {
         else if (selectedTab === 'Remove Liquidity')
             return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} Account={account} stake_tokens={stake_tokens}/>
 
-        return <LiquidityTable ym1_contract={ym1_contract} ym2_contract={ym2_contract} k_mine_contract={k_mine_contract} etherAmount={etherAmount} />
+        return <LiquidityTable k_mine_contract={k_mine_contract} />
     }
 
     return (
