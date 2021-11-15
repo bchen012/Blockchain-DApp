@@ -2,8 +2,6 @@ import {Table, TableColumn} from '@backstage/core-components';
 import React, {useEffect, useState} from "react";
 import {Box, Button, Typography} from "@material-ui/core";
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz";
-import AddIcon from "@material-ui/icons/Add";
-import RemoveIcon from "@material-ui/icons/Remove";
 import NavigationIcon from "@material-ui/icons/Navigation";
 import WbCloudyIcon from "@material-ui/icons/WbCloudy";
 import RadioButtonCheckedIcon from "@material-ui/icons/RadioButtonChecked";
