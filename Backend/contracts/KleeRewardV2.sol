@@ -59,7 +59,7 @@ contract KleeRewardV2 is Ownable {
     function calculate_current_redeemable() public view returns (uint256) {
         address user_addr = _msgSender();
         uint256 max_claim = rewards[user_addr].redeemable;
-        uint256 can_claim_now = (block.timestamp - rewards[user_addr].stake_time).div(DRIP_RATE).mul(max_claim);
+        uint256 can_claim_now = (block.timestamp - rewards[user_addr].stake_time).mul(max_claim).div(DRIP_RATE);
         return max_claim <= can_claim_now ? max_claim : can_claim_now;
     }
 
