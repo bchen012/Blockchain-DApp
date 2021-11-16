@@ -46,7 +46,11 @@ contract KleeTokenV6 is ERC721URIStorage, Ownable {
     }
 
     function getPriceRange() public view returns (address  [] memory) {
-        return priceRange;
+        uint256[existingPrice] prices;
+        for (uint i = 0; i < existingPrice; i++) {
+            prices[i] = priceRange[i];
+        }
+        return prices;
     }
 
     //@dev: when the LP has harvested enough reward token to exchange for an nft
