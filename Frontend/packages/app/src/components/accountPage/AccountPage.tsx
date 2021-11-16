@@ -10,57 +10,44 @@ import {
     YM2_ABI, YM2_CONTRACT_ADDRESS
 } from "../../config";
 import { ExchangeService } from "../tabComponents/ExchangeService";
-import { SellService } from "../tabComponents/SellService";
 import {Chip} from "@material-ui/core";
 
 export const AccountPage = () => {
     const [selectedTab, setSelectedTab] = useState<string>();
     const [account, setAccount] = useState<any>('');
-    const [kv2_balance, set_kv2_balance] = useState<any>('');
     const [ym1_balance, set_ym1_balance] = useState<any>('');
     const [ym2_balance, set_ym2_balance] = useState<any>('');
     const [eth_balance, set_eth_balance] = useState<any>('');
 
-    const [exchangeRate, setExchangeRate] = useState<string>('');
-
-
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
-    const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
     const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
     const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
 
 
-    const transfer = async (targetAddress: string, amount: string) => {
+    const transfer = async (targetAddress: string, amount: string, token: string) => {
         amount =  web3.utils.toWei(amount);
-        await kv2_contract.methods.transfer(targetAddress, amount).send({from: account}).once('receipt', (receipt) => {
-            console.log("Transfer success", receipt);
-        });
+        if (token === 'YM1'){
+            await ym1_contract.methods.transfer(targetAddress, amount).send({from: account}).once('receipt', (receipt) => {
+                console.log("Transfer YM1 success", receipt);
+            });
+        }
+        else if (token === 'YM2') {
+            await ym2_contract.methods.transfer(targetAddress, amount).send({from: account}).once('receipt', (receipt) => {
+                console.log("Transfer YM2 success", receipt);
+            });
+        }
+        else {
+            await web3.eth.sendTransaction({from: account, to: targetAddress, value: amount}).once('receipt', (receipt) => {
+                console.log("Transfer ETH success", receipt);
+            });
+        }
+
     }
-
-    const sell = async (amount: string) => {
-        await kv2_contract.methods.sellCoin(amount).send({from: account}).once('receipt', (receipt) => {
-            console.log("Sell success", receipt);
-        });
-    };
-
-    // const getExchangeRate = async () => {
-    //     await contract.methods.getExchangeRate().call().then(exr => {
-    //         setExchangeRate(exr);
-    //     });
-    // };
-    //
-    // getExchangeRate().then();
 
 
     useEffect(() => {
         let isMounted: boolean = true;
-
-        const getKv2Balance = async (address: string) => {
-            await kv2_contract.methods.balanceOf(address).call().then(accountBalance => {
-                if (isMounted) set_kv2_balance(accountBalance/1e18);
-            });
-        };
 
         const getYm1Balance = async (address: string) => {
             await ym1_contract.methods.balanceOf(address).call().then(accountBalance => {
@@ -79,7 +66,7 @@ export const AccountPage = () => {
             if (isMounted) {
                 setAccount(accounts[0])
                 console.log('SET ACCOUNT:', accounts[0]);
-                getKv2Balance(accounts[0]).then();
+                // getKv2Balance(accounts[0]).then();
                 getYm1Balance(accounts[0]).then();
                 getYm2Balance(accounts[0]).then();
                 web3.eth.getBalance(accounts[0]).then(value => {
@@ -89,7 +76,7 @@ export const AccountPage = () => {
 
         });
         return () => { isMounted = false };
-    }, []);
+    }, [selectedTab]);
 
     const tabs = useMemo<TechFamilyTab[]>(
         () => [
@@ -101,24 +88,15 @@ export const AccountPage = () => {
                 id: 'transfer',
                 label: 'Transfer',
             },
-            {
-                id: 'sell',
-                label: 'Sell',
-            },
         ],
         [],
     );
 
     const TabContent = () => {
-        console.log('tabcontent')
         if (selectedTab === 'Transfer') {
             return <ExchangeService transfer={transfer}/>
         }
-        else if (selectedTab === 'Sell') {
-            return <SellService sell={sell} exchangeRate={exchangeRate}/>
-        }
-
-        return <AccountBalance ym1_balance={ym1_balance} ym2_balance={ym2_balance} kv2_balance={kv2_balance} eth_balance={eth_balance}/>
+        return <AccountBalance ym1_balance={ym1_balance} ym2_balance={ym2_balance} eth_balance={eth_balance}/>
     }
 
 

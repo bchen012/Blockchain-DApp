@@ -1,8 +1,18 @@
-import { TextField, Card, CardMedia, CardContent, Button} from '@material-ui/core';
+import {
+    TextField,
+    Card,
+    CardMedia,
+    CardContent,
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem, Box
+} from '@material-ui/core';
 import React, { useState } from 'react';
 
 type ExchangeServiceProps = {
-    transfer: (targetAddress: string, amount: string) => void
+    transfer: (targetAddress: string, amount: string, token: string) => void
 }
 
 export const ExchangeService = ({transfer}: ExchangeServiceProps) => {
@@ -10,18 +20,31 @@ export const ExchangeService = ({transfer}: ExchangeServiceProps) => {
     const [address, setAddress] = useState<string>('');
     const [amount, setAmount] = useState<string>('');
 
+    const [token, setToken] = React.useState('YM1');
 
     return (
         <Card >
             <CardMedia
                 component="img"
-                height="500"
+                height="300"
                 image="Klee_3.jpeg"
-                alt="green iguana"
             />
             <CardContent>
+                <Box sx={{ minWidth: 120 }}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Token</InputLabel>
+                        <Select
+                            value={token}
+                            label="Token"
+                            onChange={(e) => {setToken(e.target.value as string)}}
+                        >
+                            <MenuItem value={'YM1'}>YM1</MenuItem>
+                            <MenuItem value={'YM2'}>YM2</MenuItem>
+                            <MenuItem value={'ETH'}>ETH</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
                 <div>
-                    <h2>Transfer KV2 to:</h2>
                     <TextField
                         required
                         id="outlined-required"
@@ -45,7 +68,7 @@ export const ExchangeService = ({transfer}: ExchangeServiceProps) => {
                 </div>
                 <br/>
                 <Button variant="contained" onClick={() => {
-                    transfer(address, amount)
+                    transfer(address, amount, token)
                     setAddress('')
                     setAmount('')
                 }}>Transfer</Button>
