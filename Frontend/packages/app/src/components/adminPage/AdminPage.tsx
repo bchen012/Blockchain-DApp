@@ -13,7 +13,7 @@ import {
     YM2_CONTRACT_ADDRESS,
     YM1_ABI,
     YM2_ABI,
-    KV6_ABI, KV6_CONTRACT_ADDRESS
+    KV6_ABI, KV6_CONTRACT_ADDRESS, K_REWARD_ABI
 } from "../../config";
 import {SetExchangeRate} from "./SetExchangeRate";
 import {AdminBalance} from "./AdminBalance";
@@ -30,6 +30,7 @@ export const AdminPage = () => {
     const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
     const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
     const kv6_contract = new web3.eth.Contract(KV6_ABI, KV6_CONTRACT_ADDRESS);
+    const k_rewards_contract = new web3.eth.Contract(K_REWARD_ABI, K_REWARD_CONTRACT_ADDRESS);
 
     web3.eth.getAccounts().then(accounts => {
         setAccount(accounts[0]);
@@ -95,6 +96,9 @@ export const AdminPage = () => {
                     console.log('Pool 2 Added')
                     kv6_contract.methods.setRewardTokenAddress(KV2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
                         console.log('Reward token address set')
+                        k_rewards_contract.methods.setNativeTokenAddress(KV2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
+                            console.log('Native Reward token address set')
+                        });
                     });
                 });
             });

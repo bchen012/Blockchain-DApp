@@ -5,7 +5,6 @@ import Web3 from "web3";
 import {
     K_MINE_ABI,
     K_MINE_CONTRACT_ADDRESS,
-    K_REWARD_CONTRACT_ADDRESS,
     YM1_ABI,
     YM2_ABI,
     YM1_CONTRACT_ADDRESS,
@@ -27,22 +26,34 @@ export const LiquidatePage = () => {
     const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
 
     const stake_tokens = async (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => {
+        let pool = '0';
+        if (token2 === 'YM2') pool = '1'
+
         if (add){
-            if (parseInt(token1Amount) > 0)
-                deposit_tokens(token1, token1Amount).then();
-            if (parseInt(token2Amount) > 0)
-                deposit_tokens(token2, token2Amount).then();
+            if (parseInt(token1Amount) > 0 && parseInt(token2Amount) > 0) {
+                console.log('AMIZERO?', web3.utils.toWei(token1Amount))
+                k_mine_contract.methods.stake(pool, web3.utils.toWei(token1Amount), web3.utils.toWei('0'))
+                    .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei(token1Amount)})
+                    .once('receipt', (receipt) => {
+                        console.log('Stake', token1Amount, token1)
+                        deposit_tokens(token2, token2Amount, pool).then();
+                    });
+            }
+            else if (parseInt(token1Amount) > 0)
+                deposit_tokens(token1, token1Amount, pool).then();
+            else if (parseInt(token2Amount) > 0)
+                deposit_tokens(token2, token2Amount, pool).then();
         }
         else {
             harvest_tokens(token2).then();
         }
     }
 
-    const deposit_tokens = async (token: string, amount: string) => {
+    const deposit_tokens = async (token: string, amount: string, pool: string) => {
         amount = web3.utils.toWei(amount)
         console.log('STAKE ACCOUNT: ', account)
         if (token === 'ETH') {
-            k_mine_contract.methods.stake('0', amount, web3.utils.toWei('0'))
+            k_mine_contract.methods.stake(pool, amount, web3.utils.toWei('0'))
                 .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:amount})
                 .once('receipt', (receipt) => {
                     console.log('Stake', amount, token)
@@ -54,7 +65,7 @@ export const LiquidatePage = () => {
                 .send({from: account})
                 .once('receipt', (receipt) => {
                     console.log('APPROVED')
-                    k_mine_contract.methods.stake('0', web3.utils.toWei('0'), amount)
+                    k_mine_contract.methods.stake(pool, web3.utils.toWei('0'), amount)
                         .send({from: account, to: K_MINE_CONTRACT_ADDRESS, value: web3.utils.toWei('0')})
                         .once('receipt', (receipt) => {
                             console.log('Stake', amount, token)
@@ -66,13 +77,14 @@ export const LiquidatePage = () => {
                 .send({from:account})
                 .once('receipt', (receipt) => {
                     console.log('APPROVED')
-                    k_mine_contract.methods.stake('1', web3.utils.toWei('0'), amount)
+                    k_mine_contract.methods.stake(pool, web3.utils.toWei('0'), amount)
                         .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('0')})
                         .once('receipt', (receipt) => {
                             console.log('Stake', amount, token)
                         });
                 });
         }
+        return 'Done'
     };
 
     const harvest_tokens = async (token: string) => {
@@ -131,7 +143,7 @@ export const LiquidatePage = () => {
         else if (selectedTab === 'Remove Liquidity')
             return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={false} stake_tokens={stake_tokens}/>
 
-        return <LiquidityTable k_mine_contract={k_mine_contract}/>
+        return <LiquidityTable k_mine_contract={k_mine_contract} account={account}/>
     }
 
     return (
