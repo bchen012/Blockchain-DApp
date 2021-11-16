@@ -60,11 +60,11 @@ export const NftStorePage = () => {
         return () => { isMounted = false };
     }, [selectedTab]);
 
-    const purchaseNFT = async (uri: string, price: string) => {
+    const purchaseNFT = async (uri: string, price: string, rarity: number) => {
         let amount = web3.utils.toWei(price);
         await kv2_contract.methods.approve(KV6_CONTRACT_ADDRESS, amount).send({from: account}).once('receipt', (receipt) => {
             console.log("Purchase approved", receipt);
-            kv6_contract.methods.awardNFT(uri, amount, account)
+            kv6_contract.methods.awardNFT(uri, rarity, amount, account)
                 .send({from: account})
                 .once('receipt', (receipt) => {
                     console.log('NFT Awarded')
@@ -103,7 +103,7 @@ export const NftStorePage = () => {
                         <br/>
                         <br/>
                         <Button variant="contained" onClick={()=>{
-                            purchaseNFT(`https://nftv1-n6hllfzhqa-as.a.run.app/static/json_dir/klee_${val.id+1}.json`, val.price).then()
+                            purchaseNFT(`https://nftv1-n6hllfzhqa-as.a.run.app/static/json_dir/klee_${val.id+1}.json`, val.price, val.rarity).then()
                         }}>Buy</Button>
                     </CardContent>
                 </Card>

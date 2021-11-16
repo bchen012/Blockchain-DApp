@@ -47,7 +47,7 @@ contract KleeTokenV6 is ERC721URIStorage, Ownable {
     }
 
     function getPriceRange() public view returns (address  [] memory) {
-        uint256[existingPrice] memory prices;
+        uint[] memory prices = new uint[](existingPrice);
         for (uint i = 0; i < existingPrice; i++) {
             prices[i] = priceRange[i];
         }
