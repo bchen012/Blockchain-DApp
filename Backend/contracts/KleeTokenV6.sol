@@ -30,10 +30,11 @@ contract KleeTokenV6 is ERC721URIStorage, Ownable {
     constructor() ERC721("KleeTokenV6", "KT6") {
         _RewardToken = IERC20(_RewardTokenAddress);
         tokenCounter = 0;
-        existingPrice = 3;
+        existingPrice = 4;
         priceRange[0] = 500 * (10 **18);  //common
-        priceRange[1] = 1000 * (10 ** 18);  //legendary
-        priceRange[2] = 10000 * (10 ** 18);  //mythical
+        priceRange[1] = 1000 * (10 ** 18);  //rare
+        priceRange[1] = 5000 * (10 ** 18);  //legendary
+        priceRange[3] = 10000 * (10 ** 18);  //mythical
     }
 
     function modifyPriceRange(uint256 id,uint256 price) public onlyOwner {

@@ -74,7 +74,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
       <SidebarLogo />
       <SidebarDivider />
       <SidebarItem icon={HomeIcon} to="account" text="Home" />
-      <SidebarItem icon={ImportExportIcon} to="exchangeRate" text="Exchange Rate" />
+      {/*<SidebarItem icon={ImportExportIcon} to="exchangeRate" text="Exchange Rate" />*/}
       <SidebarItem icon={MonetizationOnIcon} to="liquidate" text="Liquidity" />
       <SidebarItem icon={StoreIcon} to="nftStore" text="NFT Store" />
       <SidebarDivider />

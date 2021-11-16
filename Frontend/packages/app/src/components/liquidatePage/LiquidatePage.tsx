@@ -31,7 +31,6 @@ export const LiquidatePage = () => {
 
         if (add){
             if (parseInt(token1Amount) > 0 && parseInt(token2Amount) > 0) {
-                console.log('AMIZERO?', web3.utils.toWei(token1Amount))
                 k_mine_contract.methods.stake(pool, web3.utils.toWei(token1Amount), web3.utils.toWei('0'))
                     .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei(token1Amount)})
                     .once('receipt', (receipt) => {
