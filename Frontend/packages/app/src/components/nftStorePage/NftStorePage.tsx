@@ -11,6 +11,13 @@ export const NftStorePage = () => {
     const [account, setAccount] = useState<any>('');
     const [purchaseAmount, setPurchaseAmount] = useState<any>('0');
 
+    const rarityMap = new Map([
+        [1, 'common'],
+        [2, 'rare'],
+        [3, 'legendary'],
+        [4, 'mythical']
+    ]);
+
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
     const kv6_contract = new web3.eth.Contract(KV6_ABI, KV6_CONTRACT_ADDRESS);
@@ -41,7 +48,7 @@ export const NftStorePage = () => {
                 <CardContent>
                     <h2>{val.name}</h2>
                     <h3>{val.description}</h3>
-                    <h3>Rarity: {val.rarity}</h3>
+                    <h3>Rarity: {rarityMap.get(val.rarity)}</h3>
                     <div>
                         <TextField
                             required
