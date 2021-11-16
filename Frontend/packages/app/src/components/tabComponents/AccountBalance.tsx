@@ -3,7 +3,6 @@ import React from 'react';
 import NavigationIcon from "@material-ui/icons/Navigation";
 import WbCloudyIcon from "@material-ui/icons/WbCloudy";
 import RadioButtonCheckedIcon from "@material-ui/icons/RadioButtonChecked";
-// import MonetizationOnIcon from '@material-ui/icons//MonetizationOn';
 
 type AccountBalanceProps = {
     ym1_balance: number,
