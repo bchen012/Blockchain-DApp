@@ -42,8 +42,7 @@ contract KleeRewardV2 is Ownable {
     }
 
     //@dev: the deposit function, called by the Mine after the LP has staked some shares in the pool
-    function deposit(uint256 shares) external {
-        address user_addr = _msgSender();
+    function deposit(uint256 shares,address user_addr) external {
         if (claimantExists[user_addr] == false) {
             claimantExists[user_addr] = true;
             rewards[user_addr]  = RewardInfo(0,0,block.timestamp);

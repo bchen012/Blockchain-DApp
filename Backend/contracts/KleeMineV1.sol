@@ -9,7 +9,7 @@ import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {SafeCast} from '@openzeppelin/contracts/utils/math/SafeCast.sol';
 
 interface RewardLockerInterface {
-        function deposit(uint256 shares) external; 
+        function deposit(uint256 shares,address recipient_addr) external; 
 } 
 
 
@@ -107,9 +107,9 @@ contract KleeMine is Ownable {
         } 
 
         //update user contribution record
-        UserInfo storage deezUser = userInfo[poolID][_msgSender()];
-        deezUser.TokenAAmount = userInfo[poolID][_msgSender()].TokenAAmount.add(amountA);
-        deezUser.TokenBAmount = userInfo[poolID][_msgSender()].TokenBAmount.add(amountB);
+        UserInfo storage deezUser = userInfo[poolID][user_addr];
+        deezUser.TokenAAmount = userInfo[poolID][user_addr].TokenAAmount.add(amountA);
+        deezUser.TokenBAmount = userInfo[poolID][user_addr].TokenBAmount.add(amountB);
         
         //update pool stake amount 
         PoolInfo storage deezPool = pools[poolID];
@@ -119,15 +119,31 @@ contract KleeMine is Ownable {
 
         if (pools[poolID].TokenA_amount != 0) {
             uint256 shares = calculate_shares(poolID,amountA,amountB);
-            _RewardLocker.deposit(shares);
+            _RewardLocker.deposit(shares,user_addr);
         }
   
     }
 
     //@dev: this is for the DMM, I will not implement it lmao 
-    function swap(uint256 poolID,address tokenGiven, address tokenGivenAmount) public {
-        address tokenToSwapAddr = tokenGiven == pools[poolID].TokenA ? pools[poolID].TokenB : pools[poolID].TokenA;
-        //TODO: implement constant product formula
+    function swap(uint256 poolID,address SourceToken, uint256 amount_SrcToken) public returns (uint256) {
+        bool x = SourceToken == pools[poolID].TokenA;
+        //TODO: implement constant product formula for non-eth pools
+        //    : charge 0.3% eth like uniswap
+        // 
+        uint256 tx_fee = 3 * 10 **15; 
+        uint256 amount_DstToken; 
+        require(poolID<2);  //these pools got ether as token A
+        if (x) {
+             //if they want to sell tokenA and buy tokenB
+            uint256 poolETH = pools[poolID.TokenA];
+            
+        }
+        else {
+            //if they want to sell tokenB and buy token A
+            amount_DstToken = 0;
+        }
+        
+
 
     }
 
