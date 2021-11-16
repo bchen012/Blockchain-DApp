@@ -12,7 +12,8 @@ import {
     YM1_CONTRACT_ADDRESS,
     YM2_CONTRACT_ADDRESS,
     YM1_ABI,
-    YM2_ABI
+    YM2_ABI,
+    KV6_ABI, KV6_CONTRACT_ADDRESS
 } from "../../config";
 import {SetExchangeRate} from "./SetExchangeRate";
 import {AdminBalance} from "./AdminBalance";
@@ -28,6 +29,7 @@ export const AdminPage = () => {
     const k_mine_contract = new web3.eth.Contract(K_MINE_ABI, K_MINE_CONTRACT_ADDRESS);
     const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
     const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
+    const kv6_contract = new web3.eth.Contract(KV6_ABI, KV6_CONTRACT_ADDRESS);
 
     web3.eth.getAccounts().then(accounts => {
         setAccount(accounts[0]);
@@ -91,6 +93,9 @@ export const AdminPage = () => {
                 console.log('Pool 1 Added')
                 k_mine_contract.methods.addPool('0x0000000000000000000000000000000000000000', YM2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
                     console.log('Pool 2 Added')
+                    kv6_contract.methods.setRewardTokenAddress(KV2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
+                        console.log('Reward token address set')
+                    });
                 });
             });
         });

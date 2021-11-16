@@ -1,7 +1,7 @@
 import NftStoreLayout from "./NftStoreLayout";
 import {Content} from '@backstage/core-components';
 import Web3 from "web3";
-import { KV2_CONTRACT_ADDRESS, KV2_ABI, KV6_CONTRACT_ADDRESS, KV6_ABI } from "../../config";
+import {KV2_CONTRACT_ADDRESS, KV2_ABI, KV6_CONTRACT_ADDRESS, KV6_ABI, K_MINE_CONTRACT_ADDRESS} from "../../config";
 import {Button, Card, CardContent, CardMedia} from "@material-ui/core";
 import React, {useState} from "react";
 import petsJson from "../../pets.json"
@@ -34,12 +34,15 @@ export const NftStorePage = () => {
     const purchaseNFT = async (uri: string, price: string) => {
         let amount = web3.utils.toWei(price);
         await kv2_contract.methods.approve(KV6_CONTRACT_ADDRESS, amount).send({from: account}).once('receipt', (receipt) => {
-            console.log("Purchase success", receipt);
+            console.log("Purchase approved", receipt);
+            kv6_contract.methods.awardNFT(uri, amount, account)
+                .send({from: account})
+                .once('receipt', (receipt) => {
+                    console.log('NFT Awarded')
+                });
         });
 
-        await kv6_contract.methods.awardBakudan(uri, amount).send({from: account}).once('receipt', (receipt) => {
-            console.log("Token minted", receipt);
-        });
+
     }
 
     const NFTs = petsJson.map((val) => {
