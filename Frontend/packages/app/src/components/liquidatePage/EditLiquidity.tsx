@@ -138,7 +138,9 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiqui
                 <br/>
 
                 <Button variant="contained" onClick={() => {
-                    stake_tokens(token1, token2, token1Amount ?? '0', token2Amount ?? '0', Add)
+                    stake_tokens(token1, token2, token1Amount ?? '0', token2Amount ?? '0', Add);
+                    setToken1Amount('');
+                    setToken2Amount('');
                 }}> {Add ? 'Add':'Remove'} </Button>
 
             </CardContent>

@@ -1,15 +1,20 @@
 import NftStoreLayout from "./NftStoreLayout";
 import {Content} from '@backstage/core-components';
 import Web3 from "web3";
-import {KV2_CONTRACT_ADDRESS, KV2_ABI, KV6_CONTRACT_ADDRESS, KV6_ABI, K_MINE_CONTRACT_ADDRESS} from "../../config";
+import {KV2_CONTRACT_ADDRESS, KV2_ABI, KV6_CONTRACT_ADDRESS, KV6_ABI, K_REWARD_ABI, K_REWARD_CONTRACT_ADDRESS} from "../../config";
 import {Button, Card, CardContent, CardMedia} from "@material-ui/core";
-import React, {useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import petsJson from "../../pets.json"
 import MonetizationOnIcon from '@material-ui/icons//MonetizationOn';
+import {NFTStoreTabs, TechFamilyTab} from "./NftStoreTabs";
+import {RewardsPage} from "./RewardsPage";
 
 export const NftStorePage = () => {
 
     const [account, setAccount] = useState<any>('');
+    const [selectedTab, setSelectedTab] = useState<string>('');
+    const [kv2Balance, setKv2Balance] = useState<string>('');
+    const [redeemable, setRedeemable] = useState<string>('0');
 
     const rarityMap = new Map([
         [1, 'common'],
@@ -27,9 +32,33 @@ export const NftStorePage = () => {
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
     const kv6_contract = new web3.eth.Contract(KV6_ABI, KV6_CONTRACT_ADDRESS);
-    web3.eth.getAccounts().then(accounts => {
-        setAccount(accounts[0]);
-    });
+    const k_reward_contract = new web3.eth.Contract(K_REWARD_ABI, K_REWARD_CONTRACT_ADDRESS);
+
+    useEffect(() => {
+        let isMounted: boolean = true;
+
+        const getKV2Balance = async (address: string) => {
+            await kv2_contract.methods.balanceOf(address).call().then(accountBalance => {
+                if (isMounted) setKv2Balance(accountBalance/1e18);
+            });
+        };
+
+        const getRedeemable = async (address: string) => {
+            await k_reward_contract.methods.calculate_current_redeemable().call({from:address}).then(result => {
+                console.log('REDEEMABLE: ', result)
+                if (isMounted) setRedeemable(result/1e18);
+            })
+        };
+
+        web3.eth.getAccounts().then(accounts => {
+            if (isMounted) {
+                setAccount(accounts[0])
+                getKV2Balance(accounts[0]).then();
+                getRedeemable(accounts[0]).then();
+            }
+        });
+        return () => { isMounted = false };
+    }, [selectedTab]);
 
     const purchaseNFT = async (uri: string, price: string) => {
         let amount = web3.utils.toWei(price);
@@ -41,9 +70,21 @@ export const NftStorePage = () => {
                     console.log('NFT Awarded')
                 });
         });
+    };
 
-
-    }
+    const tabs = useMemo<TechFamilyTab[]>(
+        () => [
+            {
+                id: 'NFT store',
+                label: 'NFT Store',
+            },
+            {
+                id: 'Reward Token',
+                label: 'Reward Token'
+            },
+        ],
+        [],
+    );
 
     const NFTs = petsJson.map((val) => {
         return (
@@ -72,10 +113,21 @@ export const NftStorePage = () => {
         )
     })
 
+    const TabContent = () => {
+        console.log('tabcontent')
+        if (selectedTab === 'Reward Token')
+            return <RewardsPage balance={kv2Balance} redeemable={redeemable}/>
+        return NFTs
+    }
+
     return (
         <NftStoreLayout >
+            <NFTStoreTabs
+                tabs={tabs}
+                onChange={({ label }) => setSelectedTab(label)}
+            />
             <Content>
-                {NFTs}
+                <TabContent />
             </Content>
         </NftStoreLayout>
     );

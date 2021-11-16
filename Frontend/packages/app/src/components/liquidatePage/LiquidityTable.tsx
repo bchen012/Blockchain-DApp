@@ -1,6 +1,6 @@
 import {Table, TableColumn} from '@backstage/core-components';
 import React, {useEffect, useState} from "react";
-import {Box, Button, Typography} from "@material-ui/core";
+import {Typography} from "@material-ui/core";
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz";
 import NavigationIcon from "@material-ui/icons/Navigation";
 import WbCloudyIcon from "@material-ui/icons/WbCloudy";
@@ -8,6 +8,7 @@ import RadioButtonCheckedIcon from "@material-ui/icons/RadioButtonChecked";
 
 type LiquidityTableProps = {
     k_mine_contract: any,
+    account: string
 }
 
 type RowData = {
@@ -19,10 +20,10 @@ type RowData = {
     deposit_amount_1: string,
     deposit_amount_2: string,
     token_1_icon: any,
-    token_2_icon: any
+    token_2_icon: any,
 }
 
-export const LiquidityTable = ({k_mine_contract, setLiquidityChoice}: LiquidityTableProps) => {
+export const LiquidityTable = ({k_mine_contract, account}: LiquidityTableProps) => {
     const [totalYm1, setTotalYm1] = useState<string>('0');
     const [totalYm2, setTotalYm2] = useState<string>('0');
     const [totalEth, setTotalEth] = useState<string>('0');
@@ -46,12 +47,13 @@ export const LiquidityTable = ({k_mine_contract, setLiquidityChoice}: LiquidityT
         };
 
         const getUserInfo = async () => {
-            await k_mine_contract.methods.getUserStakeInfo('0').call().then(Result => {
-                console.log('USER INFO POOL 1: ', Result);
+            await k_mine_contract.methods.getUserStakeInfo('0').call({from: account}).then(Result => {
                 if (isMounted) setTokenA_P1(Result[0]/1e18);
                 if (isMounted) setTokenB_P1(Result[1]/1e18);
+                console.log(Result)
             });
-            await k_mine_contract.methods.getUserStakeInfo('1').call().then(Result => {
+
+            await k_mine_contract.methods.getUserStakeInfo('1').call({from: account}).then(Result => {
                 console.log('USER INFO POOL 2: ', Result);
                 if (isMounted) setTokenA_P2(Result[0]/1e18)
                 if (isMounted) setTokenB_P2(Result[1]/1e18)
