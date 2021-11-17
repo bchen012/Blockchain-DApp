@@ -33,7 +33,7 @@ contract KleeTokenV6 is ERC721URIStorage, Ownable {
         existingPrice = 4;
         priceRange[0] = 500 * (10 **18);  //common
         priceRange[1] = 1000 * (10 ** 18);  //rare
-        priceRange[1] = 5000 * (10 ** 18);  //legendary
+        priceRange[2] = 5000 * (10 ** 18);  //legendary
         priceRange[3] = 10000 * (10 ** 18);  //mythical
     }
 
