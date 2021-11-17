@@ -64,7 +64,7 @@ export const NftStorePage = () => {
         let amount = web3.utils.toWei(price);
         await kv2_contract.methods.approve(KV6_CONTRACT_ADDRESS, amount).send({from: account}).once('receipt', (receipt) => {
             console.log("Purchase approved", receipt);
-            kv6_contract.methods.awardNFT(uri, rarity, amount, account)
+            kv6_contract.methods.awardNFT(uri, rarity-1, amount, account)
                 .send({from: account})
                 .once('receipt', (receipt) => {
                     console.log('NFT Awarded')

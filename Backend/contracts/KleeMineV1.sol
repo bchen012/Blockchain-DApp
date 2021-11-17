@@ -125,27 +125,27 @@ contract KleeMine is Ownable {
     }
 
     //@dev: this is for the DMM, I will not implement it lmao 
-    function swap(uint256 poolID,address SourceToken, uint256 amount_SrcToken) public returns (uint256) {
-        bool x = SourceToken == pools[poolID].TokenA;
-        //TODO: implement constant product formula for non-eth pools
-        //    : charge 0.3% eth like uniswap
-        // 
-        uint256 tx_fee = 3 * 10 **15; 
-        uint256 amount_DstToken; 
-        require(poolID<2);  //these pools got ether as token A
-        if (x) {
-             //if they want to sell tokenA and buy tokenB
-            uint256 poolETH = pools[poolID.TokenA];
-            
-        }
-        else {
-            //if they want to sell tokenB and buy token A
-            amount_DstToken = 0;
-        }
-        
-
-
-    }
+//    function swap(uint256 poolID,address SourceToken, uint256 amount_SrcToken) public returns (uint256) {
+//        bool x = SourceToken == pools[poolID].TokenA;
+//        //TODO: implement constant product formula for non-eth pools
+//        //    : charge 0.3% eth like uniswap
+//        //
+//        uint256 tx_fee = 3 * 10 **15;
+//        uint256 amount_DstToken;
+//        require(poolID<2);  //these pools got ether as token A
+//        if (x) {
+//             //if they want to sell tokenA and buy tokenB
+//            uint256 poolETH = pools[poolID.TokenA];
+//
+//        }
+//        else {
+//            //if they want to sell tokenB and buy token A
+//            amount_DstToken = 0;
+//        }
+//
+//
+//
+//    }
 
 
 
