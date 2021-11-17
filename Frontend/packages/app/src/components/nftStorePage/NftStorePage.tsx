@@ -72,6 +72,12 @@ export const NftStorePage = () => {
         });
     };
 
+    const redeemTokens = async () => {
+        await k_reward_contract.methods.redeem().send({from: account}).once('receipt', (receipt) => {
+            console.log("REDEEMED", receipt);
+        });
+    }
+
     const tabs = useMemo<TechFamilyTab[]>(
         () => [
             {
@@ -116,7 +122,7 @@ export const NftStorePage = () => {
     const TabContent = () => {
         console.log('tabcontent')
         if (selectedTab === 'Reward Token')
-            return <RewardsPage balance={kv2Balance} redeemable={redeemable}/>
+            return <RewardsPage balance={kv2Balance} redeemable={redeemable} redeem={redeemTokens}/>
         return NFTs
     }
 
