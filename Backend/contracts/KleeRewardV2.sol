@@ -85,6 +85,6 @@ contract KleeRewardV2 is Ownable {
         else {
             reward_rate = 10;
         }
-        return shares.mul(reward_rate);
+        return shares.mul(reward_rate).mul(10**18);
     }
 }
