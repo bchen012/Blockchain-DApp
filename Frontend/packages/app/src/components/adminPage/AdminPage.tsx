@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import AdminLayout from "./AdminLayout";
 import {AdminTabs, TechFamilyTab} from './AdminTabs';
 import {Content} from '@backstage/core-components';
@@ -16,13 +16,14 @@ import {
     KV6_ABI, KV6_CONTRACT_ADDRESS, K_REWARD_ABI
 } from "../../config";
 import {SetExchangeRate} from "./SetExchangeRate";
-import {AdminBalance} from "./AdminBalance";
 import {InitiatePage} from "./InitiatePage";
+import {TopUpKv2} from "./TopUpKv2";
 
 export const AdminPage = () => {
     const [selectedTab, setSelectedTab] = useState<string>();
     const [account, setAccount] = useState<any>('');
-    const [etherBalance, setEtherBalance] = useState<string>('')
+    const [kv2_balance, setKV2Balance] = useState('0');
+    const [contract_balance, setContractBalance] = useState('0');
 
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
@@ -32,17 +33,36 @@ export const AdminPage = () => {
     const kv6_contract = new web3.eth.Contract(KV6_ABI, KV6_CONTRACT_ADDRESS);
     const k_rewards_contract = new web3.eth.Contract(K_REWARD_ABI, K_REWARD_CONTRACT_ADDRESS);
 
-    web3.eth.getAccounts().then(accounts => {
-        setAccount(accounts[0]);
-    });
-
-    const getEthBalance = async () => {
-        await kv2_contract.methods.getEtherBalance().call().then(etherBalance => {
-            setEtherBalance(etherBalance/1e18);
+    const top_up_kv2 = async (amount: string) => {
+        kv2_contract.methods.transfer(K_REWARD_CONTRACT_ADDRESS, web3.utils.toWei(amount)).send({from: account}).once('receipt', (receipt) => {
+            console.log('TOPPED UP KV2')
         });
-    };
+    }
 
-    getEthBalance().then();
+    useEffect(() => {
+        let isMounted: boolean = true;
+
+        const getKV2Balance = async (address: string) => {
+            console.log('ADDRESS: ', account)
+            return await kv2_contract.methods.balanceOf(address).call().then(accountBalance => {
+                return accountBalance/1e18
+            });
+        };
+
+        web3.eth.getAccounts().then(accounts => {
+            if (isMounted) {
+                setAccount(accounts[0])
+                getKV2Balance(accounts[0]).then(result => {
+                    setKV2Balance(result);
+                });
+                getKV2Balance(K_REWARD_CONTRACT_ADDRESS).then(result => {
+                    setContractBalance(result);
+                })
+            }
+        });
+
+        return () => { isMounted = false };
+    }, []);
 
     const initialStake = async () => {
         const initial_stake_amount_eth = '50';
@@ -120,8 +140,8 @@ export const AdminPage = () => {
                 label: 'Exchange Rate',
             },
             {
-                id: 'balance',
-                label: 'Ether Balance'
+                id: 'top up',
+                label: 'Top Up'
             },
             {
                 id: 'initiate',
@@ -133,10 +153,10 @@ export const AdminPage = () => {
 
     const TabContent = () => {
         console.log('tabcontent')
-        if (selectedTab === 'Ether Balance')
-            return <AdminBalance balance={etherBalance}/>
-        else if (selectedTab === 'Initiate')
+        if (selectedTab === 'Initiate')
             return <InitiatePage init={init} initialStake={initialStake}/>
+        else if (selectedTab === 'Top Up')
+            return <TopUpKv2 topUp={top_up_kv2} kv2Balance={kv2_balance} contractBalance={contract_balance}/>
         return <SetExchangeRate setExchange={setExchange}/>
     }
 
