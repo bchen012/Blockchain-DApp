@@ -24,6 +24,7 @@ export const AdminPage = () => {
     const [account, setAccount] = useState<any>('');
     const [kv2_balance, setKV2Balance] = useState('0');
     const [contract_balance, setContractBalance] = useState('0');
+    const [priceRanges, setPriceRanges] = useState<string[]>([]);
 
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
@@ -60,6 +61,10 @@ export const AdminPage = () => {
                 })
             }
         });
+
+        kv6_contract.methods.getPriceRange().call().then(result => {
+            if (isMounted) setPriceRanges(result.map(price => price/1e18));
+        })
 
         return () => { isMounted = false };
     }, []);
@@ -126,9 +131,9 @@ export const AdminPage = () => {
     };
 
 
-    const setExchange = async (exchangeRate: string) => {
-        await kv2_contract.methods.setExchangeRate(exchangeRate).send({from: account}).once('receipt', (receipt) => {
-            console.log("Transfer success", receipt);
+    const setExchange = async (id: string, price: string) => {
+        await kv6_contract.methods.modifyPriceRange(id, web3.utils.toWei(price)).send({from: account}).once('receipt', (receipt) => {
+            console.log("Price Set", receipt);
         });
     };
 
@@ -157,7 +162,7 @@ export const AdminPage = () => {
             return <InitiatePage init={init} initialStake={initialStake}/>
         else if (selectedTab === 'Top Up')
             return <TopUpKv2 topUp={top_up_kv2} kv2Balance={kv2_balance} contractBalance={contract_balance}/>
-        return <SetExchangeRate setExchange={setExchange}/>
+        return <SetExchangeRate setExchange={setExchange} priceRanges={priceRanges}/>
     }
 
 

@@ -5,7 +5,6 @@ import {Content} from '@backstage/core-components';
 import {AccountBalance} from '../tabComponents/AccountBalance'
 import Web3 from "web3";
 import {
-    KV2_CONTRACT_ADDRESS, KV2_ABI,
     YM1_ABI, YM1_CONTRACT_ADDRESS,
     YM2_ABI, YM2_CONTRACT_ADDRESS
 } from "../../config";
