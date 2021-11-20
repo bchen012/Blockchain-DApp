@@ -9,7 +9,7 @@ type ExchangeServiceProps = {
 
 export const SetExchangeRate = ({setExchange, priceRanges}: ExchangeServiceProps) => {
 
-    const [exchangeRate, setExchangeRate] = useState<string>('');
+    const [exchangeRate, setExchangeRate] = useState<Array<string>>(new Array(priceRanges.length).fill(''));
 
     const rarityMap = new Map([
         [1, 'common'],
@@ -29,22 +29,26 @@ export const SetExchangeRate = ({setExchange, priceRanges}: ExchangeServiceProps
             <div>
                 <Card >
                     <CardContent>
-                        <h3>Minimum Price: {val} KV2 <MonetizationOnIcon/></h3>
+                        <h3>Price: {val} KV2 <MonetizationOnIcon/></h3>
                         <h3 style={{color:rarity_to_color_map.get(index+1)}}>{rarityMap.get(index+1)}</h3>
                         <TextField
                             required
                             id="outlined-required"
-                            label="Minimum Price"
-                            value={exchangeRate}
+                            label="Price"
+                            value={exchangeRate[index]}
                             fullWidth
                             autoComplete={"off"}
-                            onChange={(e) => setExchangeRate(e.target.value)}
+                            onChange={(e) => {
+                                let exchange_rate = [...exchangeRate];
+                                exchange_rate[index] = e.target.value;
+                                setExchangeRate(exchange_rate);
+                            }}
                         />
                         <br/>
                         <br/>
                         <Button variant="contained" onClick={()=>{
-                            setExchange(String(index), exchangeRate);
-                        }}>Set Minimum Price</Button>
+                            setExchange(String(index), exchangeRate[index]);
+                        }}>Set Price</Button>
                     </CardContent>
                 </Card>
                 <br/>

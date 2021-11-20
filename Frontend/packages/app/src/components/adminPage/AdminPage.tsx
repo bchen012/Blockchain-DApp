@@ -2,6 +2,8 @@ import React, {useEffect, useMemo, useState} from 'react';
 import AdminLayout from "./AdminLayout";
 import {AdminTabs, TechFamilyTab} from './AdminTabs';
 import {Content} from '@backstage/core-components';
+import {Snackbar} from "@material-ui/core";
+import Alert from '@material-ui/lab/Alert';
 import Web3 from "web3";
 import {
     KV2_CONTRACT_ADDRESS,
@@ -25,6 +27,8 @@ export const AdminPage = () => {
     const [kv2_balance, setKV2Balance] = useState('0');
     const [contract_balance, setContractBalance] = useState('0');
     const [priceRanges, setPriceRanges] = useState<string[]>([]);
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState('');
 
     const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
     const kv2_contract = new web3.eth.Contract(KV2_ABI, KV2_CONTRACT_ADDRESS);
@@ -37,6 +41,8 @@ export const AdminPage = () => {
     const top_up_kv2 = async (amount: string) => {
         kv2_contract.methods.transfer(K_REWARD_CONTRACT_ADDRESS, web3.utils.toWei(amount)).send({from: account}).once('receipt', (receipt) => {
             console.log('TOPPED UP KV2')
+            setMessage('Top Up Successful!')
+            setOpen(true);
         });
     }
 
@@ -67,7 +73,7 @@ export const AdminPage = () => {
         })
 
         return () => { isMounted = false };
-    }, []);
+    }, [open]);
 
     const initialStake = async () => {
         const initial_stake_amount_eth = '50';
@@ -114,15 +120,20 @@ export const AdminPage = () => {
 
     const init = async () => {
         k_mine_contract.methods.setRewardLockerAddress(K_REWARD_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
-            console.log('Rewards contract address set')
+            setMessage('Rewards contract address set');
+            setOpen(true);
             k_mine_contract.methods.addPool('0x0000000000000000000000000000000000000000', YM1_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
-                console.log('Pool 1 Added')
+                setMessage('Pool 1 Added');
+                setOpen(true);
                 k_mine_contract.methods.addPool('0x0000000000000000000000000000000000000000', YM2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
-                    console.log('Pool 2 Added')
+                    setMessage('Pool 2 Added');
+                    setOpen(true);
                     kv6_contract.methods.setRewardTokenAddress(KV2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
-                        console.log('Reward token address set')
+                        setMessage('Reward token address set');
+                        setOpen(true);
                         k_rewards_contract.methods.setNativeTokenAddress(KV2_CONTRACT_ADDRESS).send({from: account}).once('receipt', (receipt) => {
-                            console.log('Native Reward token address set')
+                            setMessage('Native Reward token address set');
+                            setOpen(true);
                         });
                     });
                 });
@@ -134,6 +145,8 @@ export const AdminPage = () => {
     const setExchange = async (id: string, price: string) => {
         await kv6_contract.methods.modifyPriceRange(id, web3.utils.toWei(price)).send({from: account}).once('receipt', (receipt) => {
             console.log("Price Set", receipt);
+            setMessage('Price Set Successful!')
+            setOpen(true);
         });
     };
 
@@ -156,6 +169,14 @@ export const AdminPage = () => {
         [],
     );
 
+    const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
+
     const TabContent = () => {
         console.log('tabcontent')
         if (selectedTab === 'Initiate')
@@ -173,6 +194,11 @@ export const AdminPage = () => {
                 onChange={({ label }) => setSelectedTab(label)}
             />
             <Content>
+                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                    <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                        {message}
+                    </Alert>
+                </Snackbar>
                 <TabContent />
             </Content>
         </AdminLayout>

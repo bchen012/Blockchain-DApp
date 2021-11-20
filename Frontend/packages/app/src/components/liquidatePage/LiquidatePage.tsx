@@ -1,6 +1,6 @@
 import LiquidateLayout from "./LiquidateLayout";
 import {Content} from '@backstage/core-components';
-import {Chip} from "@material-ui/core";
+import {Chip, Snackbar} from "@material-ui/core";
 import Web3 from "web3";
 import {
     K_MINE_ABI,
@@ -14,6 +14,7 @@ import React, {useState, useEffect, useMemo} from "react";
 import {LiquidityTable} from "./LiquidityTable";
 import {LiquidateTabs, TechFamilyTab} from "./LiquidateTabs";
 import {EditLiquidity} from "./EditLiquidity";
+import Alert from "@material-ui/lab/Alert";
 
 export const LiquidatePage = () => {
 
@@ -24,6 +25,8 @@ export const LiquidatePage = () => {
     const k_mine_contract = new web3.eth.Contract(K_MINE_ABI, K_MINE_CONTRACT_ADDRESS);
     const ym1_contract = new web3.eth.Contract(YM1_ABI, YM1_CONTRACT_ADDRESS);
     const ym2_contract = new web3.eth.Contract(YM2_ABI, YM2_CONTRACT_ADDRESS);
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState('');
 
     const stake_tokens = async (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => {
         let pool = '0';
@@ -50,24 +53,23 @@ export const LiquidatePage = () => {
 
     const deposit_tokens = async (token: string, amount: string, pool: string) => {
         amount = web3.utils.toWei(amount)
-        console.log('STAKE ACCOUNT: ', account)
         if (token === 'ETH') {
             k_mine_contract.methods.stake(pool, amount, web3.utils.toWei('0'))
                 .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:amount})
                 .once('receipt', (receipt) => {
-                    console.log('Stake', amount, token)
-                    console.log('Transferred', amount, token)
+                    setMessage('Staked Tokens Successful');
+                    setOpen(true);
                 });
         }
         else if (token === 'YM1') {
             ym1_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, amount)
                 .send({from: account})
                 .once('receipt', (receipt) => {
-                    console.log('APPROVED')
                     k_mine_contract.methods.stake(pool, web3.utils.toWei('0'), amount)
                         .send({from: account, to: K_MINE_CONTRACT_ADDRESS, value: web3.utils.toWei('0')})
                         .once('receipt', (receipt) => {
-                            console.log('Stake', amount, token)
+                            setMessage('Staked Tokens Successful');
+                            setOpen(true);
                         });
                 });
         }
@@ -75,15 +77,14 @@ export const LiquidatePage = () => {
             ym2_contract.methods.approve(K_MINE_CONTRACT_ADDRESS, amount)
                 .send({from:account})
                 .once('receipt', (receipt) => {
-                    console.log('APPROVED')
                     k_mine_contract.methods.stake(pool, web3.utils.toWei('0'), amount)
                         .send({from:account, to:K_MINE_CONTRACT_ADDRESS, value:web3.utils.toWei('0')})
                         .once('receipt', (receipt) => {
-                            console.log('Stake', amount, token)
+                            setMessage('Staked Tokens Successful');
+                            setOpen(true);
                         });
                 });
         }
-        return 'Done'
     };
 
     const harvest_tokens = async (token: string) => {
@@ -91,14 +92,16 @@ export const LiquidatePage = () => {
             k_mine_contract.methods.harvestOnePool('0')
                 .send({from:account})
                 .once('receipt', (receipt) => {
-                    console.log('Harvested Pool 1')
+                    setMessage('Harvested Pool 1');
+                    setOpen(true);
                 });
         }
         else {
             k_mine_contract.methods.harvestOnePool('1')
                 .send({from:account})
                 .once('receipt', (receipt) => {
-                    console.log('Harvested Pool 2')
+                    setMessage('Harvested Pool 2');
+                    setOpen(true);
                 });
         }
     }
@@ -145,6 +148,14 @@ export const LiquidatePage = () => {
         return <LiquidityTable k_mine_contract={k_mine_contract} account={account}/>
     }
 
+    const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
+
     return (
         <LiquidateLayout >
             <LiquidateTabs
@@ -153,6 +164,11 @@ export const LiquidatePage = () => {
             />
             <Content>
                 <Chip label={'Account: ' + account} />
+                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                    <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                        {message}
+                    </Alert>
+                </Snackbar>
                 <TabContent />
             </Content>
         </LiquidateLayout>

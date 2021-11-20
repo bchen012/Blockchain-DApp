@@ -2,12 +2,14 @@ import NftStoreLayout from "./NftStoreLayout";
 import {Content} from '@backstage/core-components';
 import Web3 from "web3";
 import {KV2_CONTRACT_ADDRESS, KV2_ABI, KV6_CONTRACT_ADDRESS, KV6_ABI, K_REWARD_ABI, K_REWARD_CONTRACT_ADDRESS} from "../../config";
-import {Button, Card, CardContent, CardMedia} from "@material-ui/core";
+import {Button, Card, CardContent, CardMedia, Snackbar} from "@material-ui/core";
 import React, {useEffect, useMemo, useState} from "react";
 import petsJson from "../../pets.json"
 import MonetizationOnIcon from '@material-ui/icons//MonetizationOn';
 import {NFTStoreTabs, TechFamilyTab} from "./NftStoreTabs";
 import {RewardsPage} from "./RewardsPage";
+import {Chip} from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 
 export const NftStorePage = () => {
 
@@ -15,6 +17,11 @@ export const NftStorePage = () => {
     const [selectedTab, setSelectedTab] = useState<string>('');
     const [kv2Balance, setKv2Balance] = useState<string>('');
     const [redeemable, setRedeemable] = useState<string>('0');
+    const [ownership_array, setOwnershipArray] = useState<Array<boolean>>(new Array(8).fill(false));
+    const [priceRanges, setPriceRanges] = useState<string[]>([]);
+    const [open, setOpen] = React.useState(false);
+    const [message, setMessage] = useState('');
+    const [error, setError] = React.useState(false);
 
     const rarityMap = new Map([
         [1, 'common'],
@@ -57,24 +64,37 @@ export const NftStorePage = () => {
                 getRedeemable(accounts[0]).then();
             }
         });
-        return () => { isMounted = false };
-    }, [selectedTab]);
 
-    const purchaseNFT = async (uri: string, price: string, rarity: number) => {
+        kv6_contract.methods.getPriceRange().call().then(result => {
+            if (isMounted) setPriceRanges(result.map(price => price/1e18));
+        })
+
+        return () => { isMounted = false };
+    }, [selectedTab, open]);
+
+    const purchaseNFT = async (uri: string, price: string, rarity: number, index: number) => {
         let amount = web3.utils.toWei(price);
         await kv2_contract.methods.approve(KV6_CONTRACT_ADDRESS, amount).send({from: account}).once('receipt', (receipt) => {
             console.log("Purchase approved", receipt);
             kv6_contract.methods.awardNFT(uri, rarity-1, amount, account)
                 .send({from: account})
                 .once('receipt', (receipt) => {
-                    console.log('NFT Awarded')
-                });
+                    let ownerArray = [...ownership_array];
+                    ownerArray[index] = true;
+                    setOwnershipArray(ownerArray);
+                    setMessage('Purchase Success!');
+                    setOpen(true);
+                }).catch(error => {
+                    setError(true);
+            });
         });
     };
 
     const redeemTokens = async () => {
         await k_reward_contract.methods.redeem().send({from: account}).once('receipt', (receipt) => {
             console.log("REDEEMED", receipt);
+            setMessage('Redeem KV2 Successful');
+            setOpen(true);
         });
     }
 
@@ -92,7 +112,14 @@ export const NftStorePage = () => {
         [],
     );
 
-    const NFTs = petsJson.map((val) => {
+
+    const OwnedChip = ({index}: {index: number}) => {
+        if (ownership_array[index])
+            return (<Chip label="OWNED" style={{backgroundColor:'green', color:'whitesmoke'}}/>)
+        return <></>
+    }
+
+    const NFTs = petsJson.map((val, index) => {
         return (
             <div>
                 <Card >
@@ -102,14 +129,15 @@ export const NftStorePage = () => {
                         image={val.image}
                     />
                     <CardContent>
-                        <h2>{val.name}</h2>
-                        <h3>Price: {val.price} KV2 <MonetizationOnIcon/></h3>
+                        <h2>{val.name} <OwnedChip index={index}/> </h2>
+                        <h3>Price: {priceRanges[val.rarity-1]} KV2 <MonetizationOnIcon/></h3>
                         <h3 style={{color:rarity_to_color_map.get(val.rarity)}}>{rarityMap.get(val.rarity)}</h3>
                         Description: {val.description}
                         <br/>
                         <br/>
                         <Button variant="contained" onClick={()=>{
-                            purchaseNFT(`https://nftv1-n6hllfzhqa-as.a.run.app/static/json_dir/klee_${val.id+1}.json`, val.price, val.rarity).then()
+                            purchaseNFT(`https://nftv1-n6hllfzhqa-as.a.run.app/static/json_dir/klee_${val.id+1}.json`, String(priceRanges[val.rarity-1]), val.rarity, index)
+                                .then();
                         }}>Buy</Button>
                     </CardContent>
                 </Card>
@@ -118,6 +146,14 @@ export const NftStorePage = () => {
             </div>
         )
     })
+
+    const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setError(false);
+        setOpen(false);
+    };
 
     const TabContent = () => {
         console.log('tabcontent')
@@ -133,6 +169,16 @@ export const NftStorePage = () => {
                 onChange={({ label }) => setSelectedTab(label)}
             />
             <Content>
+                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                    <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                        {message}
+                    </Alert>
+                </Snackbar>
+                <Snackbar open={error} autoHideDuration={6000} onClose={handleClose}>
+                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                        Insufficient Funds
+                    </Alert>
+                </Snackbar>
                 <TabContent />
             </Content>
         </NftStoreLayout>
