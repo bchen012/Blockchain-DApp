@@ -159,6 +159,24 @@ export const LiquidityTable = ({k_mine_contract, account}: LiquidityTableProps) 
                 )
             },
         },
+        {
+            title: 'Pool Share',
+            field: '',
+            highlight: true,
+            cellStyle: {
+                width: 500,
+                maxWidth: 500
+            },
+            render: (pair: RowData) => {
+                return (
+                    <div>
+                        <Typography color="textPrimary">
+                            {(pair.total_stake_2 === '0') ? '0' :  parseFloat(pair.deposit_amount_2 * 100 / pair.total_stake_2).toFixed(3)} %
+                        </Typography>
+                    </div>
+                )
+            },
+        },
     ]
     const data: RowData [] = [
         {

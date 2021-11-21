@@ -134,7 +134,7 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens, k_mine_cont
                         onChange={(e) => {
                             const ratio = (token2 === 'YM1' ? parseInt(totalYm1)/parseInt(totalEth) : parseInt(totalYm2)/parseInt(totalEth));
                             setToken1Amount(e.target.value);
-                            setToken2Amount(e.target.value * ratio);
+                            setToken2Amount(String(e.target.value * ratio));
                         }}
                     />
                 </FormControl>
@@ -153,7 +153,7 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens, k_mine_cont
                         onChange={(e) => {
                             const ratio = (token2 === 'YM1' ? parseInt(totalEth)/parseInt(totalYm1) : parseInt(totalEth)/parseInt(totalYm2));
                             setToken2Amount(e.target.value);
-                            setToken1Amount(e.target.value * ratio);
+                            setToken1Amount(String(e.target.value * ratio));
                         }}
                     />
                 </FormControl>
@@ -161,6 +161,7 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens, k_mine_cont
                 <br/>
 
                 <Button variant="contained" onClick={() => {
+                    console.log('AMOUNT:',token1Amount, token2Amount)
                     stake_tokens(token1, token2, token1Amount ?? '0', token2Amount ?? '0', Add);
                     setToken1Amount('');
                     setToken2Amount('');
