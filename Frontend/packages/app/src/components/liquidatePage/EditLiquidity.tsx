@@ -7,32 +7,47 @@ import {
     InputLabel,
     Select,
     Box,
-    TextField, Button, Chip
+    TextField, Button
 } from '@material-ui/core';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 type EditLiquidityProps = {
     Token_1: string,
     Token_2: string,
     Add: boolean,
-    stake_tokens: (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => void
+    stake_tokens: (token1: string, token2: string, token1Amount: string, token2Amount: string, add: boolean) => void,
+    k_mine_contract: any
 }
 
-export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiquidityProps) => {
+export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens, k_mine_contract }: EditLiquidityProps) => {
 
-    const [token1, setToken1] = React.useState(Token_1);
+    const [token1, setToken1] = React.useState(Token_1);    // Token 1 is always ETH
     const [token2, setToken2] = React.useState(Token_2);
     const [token1Amount, setToken1Amount] = React.useState('');
     const [token2Amount, setToken2Amount] = React.useState('');
+    const [totalYm1, setTotalYm1] = useState<string>('0');
+    const [totalYm2, setTotalYm2] = useState<string>('0');
+    const [totalEth, setTotalEth] = useState<string>('0');
 
     const [pool, setPool] = React.useState('ETH-YM1');
 
-    // useEffect(() => {
-    //     let isMounted: boolean = true;
-    //
-    //
-    //     return () => { isMounted = false };
-    // }, []);
+    useEffect(() => {
+        let isMounted: boolean = true;
+
+        const getPoolInfo = async () => {
+            await k_mine_contract.methods.getPoolInfo('0').call().then(Result => {
+                if (isMounted) setTotalEth(Result[0]/1e18);
+                if (isMounted) setTotalYm1(Result[1]/1e18);
+            });
+            await k_mine_contract.methods.getPoolInfo('1').call().then(Result => {
+                if (isMounted) setTotalYm2(Result[1]/1e18);
+            });
+        };
+
+        getPoolInfo().then();
+
+        return () => { isMounted = false };
+    }, []);
 
 
     const handleChangePool = (event: any) => {
@@ -116,7 +131,11 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiqui
                         value={token1Amount}
                         fullWidth
                         autoComplete={"off"}
-                        onChange={(e) => setToken1Amount(e.target.value)}
+                        onChange={(e) => {
+                            const ratio = (token2 === 'YM1' ? parseInt(totalYm1)/parseInt(totalEth) : parseInt(totalYm2)/parseInt(totalEth));
+                            setToken1Amount(e.target.value);
+                            setToken2Amount(e.target.value * ratio);
+                        }}
                     />
                 </FormControl>
                 </Box>
@@ -131,7 +150,11 @@ export const EditLiquidity = ({ Token_1, Token_2, Add, stake_tokens }: EditLiqui
                         value={token2Amount}
                         fullWidth
                         autoComplete={"off"}
-                        onChange={(e) => setToken2Amount(e.target.value)}
+                        onChange={(e) => {
+                            const ratio = (token2 === 'YM1' ? parseInt(totalEth)/parseInt(totalYm1) : parseInt(totalEth)/parseInt(totalYm2));
+                            setToken2Amount(e.target.value);
+                            setToken1Amount(e.target.value * ratio);
+                        }}
                     />
                 </FormControl>
                 <br/>

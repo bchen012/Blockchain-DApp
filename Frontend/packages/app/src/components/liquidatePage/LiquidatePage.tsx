@@ -141,9 +141,9 @@ export const LiquidatePage = () => {
     const TabContent = () => {
         console.log('tabcontent')
         if (selectedTab === 'Add Liquidity')
-            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} stake_tokens={stake_tokens}/>
+            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={true} stake_tokens={stake_tokens} k_mine_contract={k_mine_contract}/>
         else if (selectedTab === 'Remove Liquidity')
-            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={false} stake_tokens={stake_tokens}/>
+            return <EditLiquidity Token_1={'ETH'} Token_2={selectedToken2} Add={false} stake_tokens={stake_tokens} k_mine_contract={k_mine_contract}/>
 
         return <LiquidityTable k_mine_contract={k_mine_contract} account={account}/>
     }
