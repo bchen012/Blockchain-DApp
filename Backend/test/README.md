@@ -13,7 +13,3 @@ We use hardhat test suite to run our test. The final result looks like so:
 A few things that we detected with test and decided not to implement due to lack of time:
 * the deposit call in RewardLocker is currently public. This should only be called by KleeMineV1 contract, and can be implemented using openzeppelin AccessControl modifier. As we do not have time we didn't go to implement it, but it is doable. 
 * should have more getters, but again it's not too important until we have user testing.
-
-//YM1 and YM2 sell coins
-//setDriprate
-//happyProblem in KV2
