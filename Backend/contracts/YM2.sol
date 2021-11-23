@@ -33,6 +33,9 @@ contract YM2 is ERC20("YuaMikVer2","YM2"), Ownable {
     }
 
     function sellCoin(uint256 amount) public {
+        // this function has to supply in ether and not in wei
+        // please dont ask me why 
+        // i didnt know better back then
         _transfer(_msgSender(),address(this), amount * (10 ** uint256(decimals())));
         payable(_msgSender()).transfer((amount/exchangeRate) * 1 ether);
     }

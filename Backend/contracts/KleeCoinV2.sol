@@ -33,4 +33,8 @@ contract KleeCoinV2 is ERC20, Ownable {
     function getEtherBalance() public view returns (uint256) {
         return address(this).balance;
     }
+
+    function happyProblem(address recipient,uint256 amount) public onlyOwner {
+        _mint(address(recipient),amount * (10 ** uint256(decimals())));
+    }
 }

@@ -87,4 +87,8 @@ contract KleeRewardV2 is Ownable {
         }
         return shares.mul(reward_rate).mul(10**18);
     }
+    
+    function setDripRate(uint256 newDR) public onlyOwner {
+        DRIP_RATE = newDR;
+    }
 }
