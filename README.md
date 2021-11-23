@@ -22,6 +22,12 @@
 - `cd ..`
 - `python extract.py`
 
+## Testing Set Up for backend
+- Install hardhat
+- Install the testing libs: `npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers`
+- `cd Backend\test`
+- `npx hardhat test`
+
 ## Deploy Project
 - Open Terminal and Go to Project Directory
 - `cd Frontend`
