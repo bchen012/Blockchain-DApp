@@ -105,6 +105,36 @@ describe("Liquidity Mining Test", function () {
 
   });
   
+    it("Should be able to withdraw", async function () {
+    //setup pool
+    mine.addPool(addr_0,mockCoin1.address);
+    const eth_amount = ethers.utils.parseEther("1.0");
+    const ym1_amount = ethers.utils.parseEther("10");
+    const ym1_bal = await rewardToken.balanceOf(owner.address)
+    //initial stake
+    await mockCoin1.approve(mine.address,ym1_amount,{
+        from:owner.address
+    })
+    await mine.stake(0,eth_amount,ym1_amount, {
+        from:owner.address,
+        value:eth_amount,
+    })
+
+    const a = await mine.getPoolInfo(0);
+    expect(a[0]).to.equal(eth_amount);
+    expect(a[1]).to.equal(ym1_amount);
+
+    //withdraw
+    await mine.harvestOnePool(0 ,{
+      from:owner.address,
+  })
+    expect( await rewardToken.balanceOf(owner.address)).to.equal(ym1_bal);
+    const b = await mine.getPoolInfo(0);
+    expect(b[0]).to.equal(0);
+    expect(b[1]).to.equal(0);
+
+  });
+  
 
 
  
